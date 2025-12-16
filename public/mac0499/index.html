@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Actor Model outside Distributed Systems | Harrisonn</title>
+  <meta name="description" content="Applying the Actor Model architectural pattern in centralized applications - Bachelor's Thesis by J Harrisonn M T Vieira">
+  
+  <!-- Open Graph -->
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Actor Model outside Distributed Systems">
+  <meta property="og:description" content="Applying the Actor Model architectural pattern in centralized applications">
+  <meta property="og:image" content="https://harrisonn.dev/tcc.jpg">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  
+  <style>
+    :root {
+      --ctp-rosewater: #f5e0dc;
+      --ctp-flamingo: #f2cdcd;
+      --ctp-pink: #f5c2e7;
+      --ctp-mauve: #cba6f7;
+      --ctp-red: #f38ba8;
+      --ctp-maroon: #eba0ac;
+      --ctp-peach: #fab387;
+      --ctp-yellow: #f9e2af;
+      --ctp-green: #a6e3a1;
+      --ctp-teal: #94e2d5;
+      --ctp-sky: #89dceb;
+      --ctp-sapphire: #74c7ec;
+      --ctp-blue: #89b4fa;
+      --ctp-lavender: #b4befe;
+      --ctp-text: #cdd6f4;
+      --ctp-subtext1: #bac2de;
+      --ctp-subtext0: #a6adc8;
+      --ctp-overlay2: #9399b2;
+      --ctp-overlay1: #7f849c;
+      --ctp-overlay0: #6c7086;
+      --ctp-surface2: #585b70;
+      --ctp-surface1: #45475a;
+      --ctp-surface0: #313244;
+      --ctp-base: #1e1e2e;
+      --ctp-mantle: #181825;
+      --ctp-crust: #11111b;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: var(--ctp-base);
+      color: var(--ctp-text);
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    a {
+      color: var(--ctp-mauve);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    a:hover {
+      color: var(--ctp-pink);
+      text-decoration: underline;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    /* Header */
+    header {
+      border-bottom: 1px solid var(--ctp-surface0);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--ctp-subtext0);
+      margin-bottom: 1.5rem;
+    }
+
+    .back-link:hover {
+      color: var(--ctp-mauve);
+    }
+
+    .badge {
+      display: inline-block;
+      background: var(--ctp-surface0);
+      color: var(--ctp-pink);
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-size: clamp(1.8rem, 5vw, 2.5rem);
+      font-weight: 700;
+      color: var(--ctp-text);
+      margin-bottom: 0.75rem;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: var(--ctp-subtext0);
+      margin-bottom: 1.5rem;
+    }
+
+    .meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      font-size: 0.95rem;
+      color: var(--ctp-subtext1);
+    }
+
+    .meta strong {
+      color: var(--ctp-overlay2);
+      font-weight: 500;
+    }
+
+    /* Sections */
+    section {
+      margin-bottom: 2.5rem;
+    }
+
+    h2 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--ctp-mauve);
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--ctp-surface0);
+    }
+
+    p {
+      margin-bottom: 1rem;
+      color: var(--ctp-subtext1);
+    }
+
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    ul li {
+      position: relative;
+      padding-left: 1.5rem;
+      margin-bottom: 0.75rem;
+      color: var(--ctp-subtext1);
+    }
+
+    ul li::before {
+      content: "→";
+      position: absolute;
+      left: 0;
+      color: var(--ctp-mauve);
+    }
+
+    ul li strong {
+      color: var(--ctp-text);
+      font-weight: 500;
+    }
+
+    /* References */
+    .references {
+      background: var(--ctp-mantle);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      border: 1px solid var(--ctp-surface0);
+    }
+
+    .references ul li {
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .references ul li::before {
+      content: "•";
+    }
+
+    /* PDF Section */
+    .pdf-section {
+      background: linear-gradient(135deg, var(--ctp-surface0) 0%, var(--ctp-mantle) 100%);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      border: 1px solid var(--ctp-surface1);
+    }
+
+    .pdf-section h2 {
+      border-bottom: none;
+      padding-bottom: 0;
+      margin-bottom: 0.5rem;
+    }
+
+    .pdf-download {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--ctp-mauve);
+      color: var(--ctp-crust);
+      padding: 0.6rem 1.25rem;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      margin-bottom: 1rem;
+      transition: all 0.2s ease;
+    }
+
+    .pdf-download:hover {
+      background: var(--ctp-pink);
+      color: var(--ctp-crust);
+      text-decoration: none;
+      transform: translateY(-2px);
+    }
+
+    .pdf-viewer {
+      width: 100%;
+      height: 80vh;
+      min-height: 600px;
+      border: 1px solid var(--ctp-surface1);
+      border-radius: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .pdf-fallback {
+      text-align: center;
+      padding: 2rem;
+      background: var(--ctp-base);
+      border-radius: 0.5rem;
+      color: var(--ctp-subtext0);
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--ctp-surface0);
+      text-align: center;
+      color: var(--ctp-overlay0);
+      font-size: 0.9rem;
+    }
+
+    footer a {
+      color: var(--ctp-overlay1);
+    }
+
+    /* External link icon */
+    .external::after {
+      content: " ↗";
+      font-size: 0.8em;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .container {
+        padding: 1.25rem 1rem;
+      }
+
+      .pdf-viewer {
+        height: 60vh;
+        min-height: 400px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Actor Model outside Distributed Systems</h1>
+      <p class="subtitle">Applying the architectural pattern in centralized applications</p>
+      <div class="meta">
+        <span><strong>Author:</strong> <a href="mailto:jorge.harrisonn@usp.br">J Harrisonn M T Vieira</a></span>
+        <span><strong>Supervisor:</strong> <a href="mailto:paulormm@ime.usp.br">Prof. Dr. Paulo Roberto Miranda Meirelles</a></span>
+        <span><strong>Co-supervisor:</strong> <a href="mailto:davidbtadokoro@usp.br">David de Barros Tadokoro</a></span>
+        <span><strong>Published:</strong> April 2, 2025</span>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <h2>Summary</h2>
+        <p>
+          The Actor Model is a mathematical theory widely used in distributed systems architecture. This work explores the application of the Actor Model in the development of centralized applications (i.e., not distributed), seeking to understand whether it is possible to extract value from this architectural pattern even outside its natural context.
+        </p>
+        <p>
+          The objectives of this work are: to propose an architectural framework based on the Actor Model adapted for centralized applications in Rust; to implement an application using the proposed architecture through a case study in the Patch-Hub project; and to perform a qualitative and quantitative analysis of the produced application.
+        </p>
+        <p>
+          The developed application was evaluated from the perspectives of testability, performance, maintainability, and extensibility. The results demonstrate that, although the Actor Model is not naturally suited for centralized applications, it is possible to successfully adapt it through reimagining both the problem and the pattern. The proposed architecture resulted in significant improvements in testability, extensibility, and responsibility isolation, although it increased code complexity and introduced runtime overhead with inter-actor communication.
+        </p>
+      </section>
+
+      <section>
+        <h2>Objectives</h2>
+        <ul>
+          <li><strong>Architecture design:</strong> Develop an Actor Model architecture tailored for centralized applications, balancing distributed patterns with simplicity.</li>
+          <li><strong>Practical implementation:</strong> Implement a Rust/Tokio application using Actor Model principles to showcase message-passing in a centralized context.</li>
+          <li><strong>Engineering assessment:</strong> Assess software engineering aspects like maintainability and testability when applying Actor patterns in non-distributed systems.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Roadmap</h2>
+        <ul>
+          <li><strong>Study the theory:</strong> Dive into Actor Model foundations and understand how distributed system concepts can apply to centralized applications. Examine existing implementations to extract valuable patterns.</li>
+          <li><strong>Propose an architecture:</strong> Design a Rust-based Actor Model approach specifically for patch-hub's workflow. Create diagrams showing actor relationships and message flows while considering the constraints of a terminal application.</li>
+          <li><strong>Start the implementation:</strong> Build the core system using Tokio's async runtime, focusing on message-passing mechanics and actor lifecycle management. Implement enough patch-hub functionality to validate the architecture in real usage.</li>
+          <li><strong>Test the implementation:</strong> Compare performance against the original patch-hub implementation through benchmarks and real-world usage. Gather feedback on both technical metrics and user experience.</li>
+          <li><strong>Gather the results:</strong> Document the strengths and weaknesses found during development and testing. Analyze where the Actor Model provided benefits or introduced unnecessary complexity in a centralized context.</li>
+          <li><strong>Wrap up:</strong> Document the journey, architectural decisions, and implementation details. Present conclusions about using the Actor Model for centralized applications along with lessons learned.</li>
+        </ul>
+      </section>
+
+      <section class="references">
+        <h2>References</h2>
+        <ul>
+          <li>Carl Hewitt. <a href="https://arxiv.org/abs/1008.1459" class="external">Actor Model of Computation: Scalable Robust Information Systems</a> (2010)</li>
+          <li>Mohamad Kassab, Manuel Mazzara, JooYoung Lee, Giancarlo Succi. <a href="https://link.springer.com/article/10.1007/s11334-018-0319-4" class="external">Software architectural patterns in practice: an empirical study</a> (2018)</li>
+          <li>Rust Foundation. <a href="https://rust-lang.org/" class="external">Rust: A language empowering everyone to build reliable and efficient software.</a></li>
+          <li>Patch-Hub. <a href="https://github.com/kworkflow/patch-hub" class="external">patch-hub: a TUI that streamlines the interaction of Linux developers with patches archived on lore.kernel.org</a></li>
+          <li>Source code. <a href="https://github.com/nahharris/ph-actors-tcc" class="external">ph-actors-tcc on GitHub</a></li>
+        </ul>
+      </section>
+
+      <section class="pdf-section">
+        <h2>Full Thesis</h2>
+        <a href="thesis.pdf" download class="pdf-download">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download PDF
+        </a>
+        <iframe 
+          src="thesis.pdf" 
+          class="pdf-viewer"
+          title="Actor Model outside Distributed Systems - Full Thesis PDF">
+        </iframe>
+        <noscript>
+          <div class="pdf-fallback">
+            <p>Your browser does not support embedded PDFs.</p>
+            <p><a href="thesis.pdf">Download the thesis PDF</a></p>
+          </div>
+        </noscript>
+      </section>
+    </main>
+
+    <footer>
+      <p>© 2025 J Harrisonn M T Vieira · <a href="https://harrisonn.dev">harrisonn.dev</a></p>
+    </footer>
+  </div>
+</body>
+</html>
+
