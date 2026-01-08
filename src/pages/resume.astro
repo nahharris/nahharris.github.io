@@ -1,5 +1,5 @@
 ---
-import TimeLineElement from "@components/cv/TimeLine.astro";
+import TimeLineElement from "@components/resume/TimeLine.astro";
 import BaseLayout from "@layouts/BaseLayout.astro";
 import { CONTACT_EMAIL, SPECIAL_DATES } from "src/config";
 import * as Io from "react-icons/io5";
@@ -7,7 +7,6 @@ import * as Fa from "react-icons/fa";
 import * as Si from "react-icons/si";
 import * as Tb from "react-icons/tb";
 import * as Lu from "react-icons/lu";
-import Link from "@components/text/Link.astro";
 
 const today = new Date();
 const age = Math.floor(
@@ -18,15 +17,16 @@ const specialMessage: string | undefined = SPECIAL_DATES[today.getMonth()]?.[tod
 
 ---
 
-<BaseLayout title="Resume" sideBarActiveItemID="cv">
+<BaseLayout title="Resume" sideBarActiveItemID="resume">
   <div class="mb-5">
     <div class="text-3xl w-full font-bold">Profile {specialMessage ? `(${specialMessage})` : ""}</div>
   </div>
 
   <div class="mb-10 text-justify">
-    My name is Hannah Harrisonn, I am a {age} years old Computer Science student at the University of São Paulo (USP) who is passionate about technology and programming. 
+    My name is Hannah Harrisonn, I am a {age} years old BSc in Computer Science from the University of São Paulo - Brazil (USP) who is passionate about general technology and programming. 
     <br />
-    As a self-taught, I started learning programming at the age of 12 by my self at home with my old laptop and a 1 Mbps internet connection. Since then, I've learnt a couple of different technologies and concepts. This helped me a lot to be able to learn new stuff quickly.
+    As a self-taught person, I started learning programming at the age of 12 by myself at home with my old laptop and an 1 Mbps internet connection. Since then, I've explored so many different technologies and concepts. 
+    This explorer spirit has helped me a lot, making me able to learn new stuff quickly and easily.
     <br />
     You can email me <a href=`mailto:${CONTACT_EMAIL}` class="text-accent">&lt;{CONTACT_EMAIL}&gt;</a>.
   </div>
@@ -41,8 +41,8 @@ const specialMessage: string | undefined = SPECIAL_DATES[today.getMonth()]?.[tod
       subtitle="2019 to 2021 at Espirito Santo's Federal Institute of Education, Science and Technology (IFES), Linhares - ES, Brazil"
     />
     <TimeLineElement
-      title="Undergraduate in Computer Science"
-      subtitle="2022 to present at Institute of Mathematics and Statistics of the University of São Paulo (IME-USP), São Paulo - SP, Brazil"
+      title="BSc in Computer Science"
+      subtitle="2022 to 2025 at Institute of Mathematics and Statistics of the University of São Paulo (IME-USP), São Paulo - SP, Brazil"
     />
   </div>
 
@@ -50,13 +50,14 @@ const specialMessage: string | undefined = SPECIAL_DATES[today.getMonth()]?.[tod
     <div class="text-3xl w-full font-bold">Experience</div>
   </div>
 
-  <div class="time-line-container mb-10">
+  <div class="time-line-container grid mb-10 gap-4">
     <TimeLineElement
       title="Developer at BikeSP - USP"
       subtitle="From February, 2024 to September, 2024"
     >
       <Lu.LuBike slot="icon"/>
-      I've received a scholarship to work as a developer at <a href="https://interscity.org/bikesp/" class:list={["text-primary", "font-medium"]}>BikeSP</a>, a project from the University of São Paulo that aims to test the availability of a public program to encourage the use of bicycles in the city of São Paulo.
+      I've received a scholarship to work as a developer at <a href="https://interscity.org/bikesp/" class:list={["text-primary", "font-medium"]}>BikeSP</a>, 
+      a project from the University of São Paulo that aims to test the availability of a public program to encourage the use of bicycles in the city of São Paulo.
       <br />
       I've done a lot of different tasks, mainly in the react-native Android application, but also in the project organization and documentation. 
     </TimeLineElement>
@@ -65,14 +66,24 @@ const specialMessage: string | undefined = SPECIAL_DATES[today.getMonth()]?.[tod
       subtitle="From October, 2024 to March, 2025"
     >
       <Lu.LuBike slot="icon"/>
-      I was promoted at <a href="https://interscity.org/bikesp/" class:list={["text-primary", "font-medium"]}>BikeSP</a>. In addition to my previous tasks, I was also responsible for technical decisions, project architecture, team management, and project deployment.
+      I was promoted at <a href="https://interscity.org/bikesp/" class:list={["text-primary", "font-medium"]}>BikeSP</a>. In addition to my previous tasks, 
+      I was also responsible for technical decisions, project architecture, team management, and project deployment.
     </TimeLineElement>
     <TimeLineElement
       title="Cloud Infrastructure Engineer Intern at Brex"
-      subtitle="Since March, 2025"
+      subtitle="From March, 2025 to December, 2025"
     >
       <Si.SiBrex slot="icon"/>
       I was admitted for an internship at <a href="https://www.brex.com/" class:list={["text-primary", "font-medium"]}>Brex</a>, working on the Cloud Infrastructure team.
+      My main responsibilities were to support my team by tackling on less critical issues, improving team's efficiency and reliability, while also taking care of my own projects.
+    </TimeLineElement>
+    <TimeLineElement
+      title="Junior Cloud Infrastructure Engineer at Brex"
+      subtitle="Since February, 2026"
+    >
+      <Si.SiBrex slot="icon"/>
+      I got promoted to a full-time position at <a href="https://www.brex.com/" class:list={["text-primary", "font-medium"]}>Brex</a>, still being part of the Cloud Infrastructure team, 
+      but now with more responsibilities and ownership over my projects.
     </TimeLineElement>
   </div>
 
