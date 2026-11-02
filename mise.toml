@@ -1,11 +1,11 @@
 [tools]
-bun = "1.3.3"
+bun = "1.4.4"
 
 [tasks.dev]
 run = "bun run dev"
 
 [tasks.lint]
-run = "bun x biome check src"
+run = "bun x oxlint src"
 
 [tasks.fix]
-run = "bun x biome check --write src"
+run = "bun x oxlint --fix src && bun x oxfmt src"

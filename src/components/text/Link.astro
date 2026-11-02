@@ -2,18 +2,20 @@
 import { FaLink } from "react-icons/fa";
 
 export interface Props {
-	href: string;
-    target?: string;
-	className?: string;
-    icon?: boolean;
+  href: string;
+  target?: string;
+  className?: string;
+  icon?: boolean;
 }
 
 const { href, target = "_blank", className = "", icon = true } = Astro.props;
 ---
 
 <a href={href} target={target} class=`text-primary ${className}`>
-    <span class="inline items-baseline m-0">
-        {icon && <FaLink className="inline mr-4"/>}
-        <slot><p class="inline">{href}</p></slot>
-    </span>
+  <span class="inline items-baseline m-0">
+    {icon && <FaLink className="inline mr-4" />}
+    <slot>
+      <p class="inline">{href}</p>
+    </slot>
+  </span>
 </a>

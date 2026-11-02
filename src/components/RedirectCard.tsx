@@ -16,39 +16,35 @@ import { IoChevronForward } from "react-icons/io5";
  * @returns {JSX.Element} The rendered RedirectCard component.
  */
 export default function RedirectCard({
-	icon,
-	title,
-	description,
-	url,
-	className,
-	style,
+  icon,
+  title,
+  description,
+  url,
+  className,
+  style,
 }: {
-	icon?: IconType;
-	title: string;
-	description?: string;
-	url: string;
-	className?: string;
-	style?: React.CSSProperties;
+  icon?: IconType;
+  title: string;
+  description?: string;
+  url: string;
+  className?: string;
+  style?: React.CSSProperties;
 }): JSX.Element {
-	return (
-		<a
-			href={url}
-			className={className}
-			style={{ textDecoration: "none", ...style }}
-		>
-			<div
-				className="bg-base-300 rounded-lg flex flex-row gap-4 items-center"
-				style={{ padding: "1rem" }}
-			>
-				{icon?.({ size: 48 })}
+  return (
+    <a href={url} className={className} style={{ textDecoration: "none", ...style }}>
+      <div
+        className="bg-base-300 rounded-lg flex flex-row gap-4 items-center"
+        style={{ padding: "1rem" }}
+      >
+        {icon?.({ size: 48 })}
 
-				<div className="grow">
-					<h1 className="text-sm">{title}</h1>
-					<p className="text-sm m-0">{description}</p>
-				</div>
+        <div className="grow">
+          <h1 className="text-sm">{title}</h1>
+          <p className="text-sm m-0">{description}</p>
+        </div>
 
-				<IoChevronForward size={24} className="justify-self-end" />
-			</div>
-		</a>
-	);
+        <IoChevronForward size={24} className="justify-self-end" />
+      </div>
+    </a>
+  );
 }
