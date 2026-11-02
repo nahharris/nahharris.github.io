@@ -1,53 +1,59 @@
 ---
 import { Image } from "astro:assets";
 import type { BlogSchema } from "src/content.config";
+
 import BaseLayout from "./BaseLayout.astro";
 
 export interface Props extends BlogSchema {}
 
 const {
-	title,
-	description,
-	pubDate,
-	updatedDate,
-	heroImage,
-	badge,
-	tags = [],
+  title,
+  description,
+  pubDate,
+  updatedDate,
+  heroImage,
+  badge,
+  tags = [],
 } = Astro.props as Props;
 
 const displayDate = pubDate;
 ---
 
-<BaseLayout title={title} description={description} image={heroImage}, ogType="article">
+<BaseLayout title={title} description={description} image={heroImage} , ogType="article">
   <main class="md:flex md:justify-center">
     <article class="prose prose-lg max-w-[750px] prose-img:mx-auto">
-      {heroImage && <Image width={750} height={422} format="webp" src={heroImage} alt={title} class="w-full mb-6" />}
+      {heroImage && (
+        <Image
+          width={750}
+          height={422}
+          format="webp"
+          src={heroImage}
+          alt={title}
+          class="w-full mb-6"
+        />
+      )}
       <h1 class="title my-2 text-4xl font-bold">{title}</h1>
-      { description.length > 0 &&
+      {description.length > 0 && (
         <div class="bg-base-200 rounded-lg p-4 flex flex-row">
           <div class="bg-accent p-0.5 w-1 rounded-2xl mr-4"></div>
           <p>{description}</p>
         </div>
-      }
+      )}
       {pubDate && <time>{displayDate}</time>}
       <br />
       {badge && <div class="badge badge-secondary my-1">{badge}</div>}
-      {
-        tags &&
-          tags.map((tag) => (
-            <a href={`/blog/tag/${tag}`} class="badge badge-outline ml-2 no-underline">
-              {tag}
-            </a>
-          ))
-      }
-      {
-        updatedDate && (
-          <div>
-            {" "}
-            Last updated on <time>{updatedDate}</time>{" "}
-          </div>
-        )
-      }
+      {tags &&
+        tags.map((tag) => (
+          <a href={`/blog/tag/${tag}`} class="badge badge-outline ml-2 no-underline">
+            {tag}
+          </a>
+        ))}
+      {updatedDate && (
+        <div>
+          {" "}
+          Last updated on <time>{updatedDate}</time>{" "}
+        </div>
+      )}
       <div class="divider my-2"></div>
       <slot />
     </article>

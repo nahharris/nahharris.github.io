@@ -1,0 +1,12 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start development server (Bun)",
+      "type": "process",
+      "command": "mise",
+      "args": ["run", "dev"],
+      "problemMatcher": []
+    }
+  ]
+}

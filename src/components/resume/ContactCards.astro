@@ -27,11 +27,7 @@ const { contactEmail } = Astro.props;
   >
     <Fa.FaLinkedin slot="icon" />
   </ContactCard>
-  <ContactCard
-    href={`mailto:${contactEmail}`}
-    label="Email"
-    value={contactEmail}
-  >
+  <ContactCard href={`mailto:${contactEmail}`} label="Email" value={contactEmail}>
     <Io.IoMailOutline slot="icon" />
   </ContactCard>
   <ContactCard
