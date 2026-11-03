@@ -1,0 +1,30 @@
+---
+import { getEntry, render } from "astro:content";
+
+import PostLayout from "../../../../layouts/PostLayout.astro";
+import { getTranslations, isOriginalPost } from "../../../../lib/series";
+export async function getStaticPaths() {
+  const translations = await getTranslations();
+  return Promise.all(
+    translations.map(async (translation) => {
+      const post = await getEntry(translation.data.post);
+      if (!post || !isOriginalPost(post))
+        throw new Error("Missing post for translation " + translation.id);
+      return {
+        params: {
+          id: post.data.series.id,
+          post: post.data.postSlug,
+          language: translation.data.language,
+        },
+        props: { post, translation },
+      };
+    }),
+  );
+}
+const { post, translation } = Astro.props;
+const { Content } = await render(translation);
+---
+
+<PostLayout post={post} translation={translation}>
+  <Content />
+</PostLayout>

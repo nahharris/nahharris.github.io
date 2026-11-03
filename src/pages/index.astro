@@ -103,8 +103,8 @@ const featured = ["patch-hub", "actor-model"].map((id) =>
     </section>
     <div class="home-intro-strip">
       <p>Projects have a home. Posts tell their story.</p>
-      <a href="/feed/?type=series">
-        {index.series.length} series{" "}
+      <a href="/feed/">
+        {index.series.length} projects & series{" "}
         <span aria-hidden="true">
           <LuArrowUpRight size="1em" className="ui-icon" aria-hidden="true" focusable="false" />
         </span>
@@ -137,7 +137,7 @@ const featured = ["patch-hub", "actor-model"].map((id) =>
             <div class="series-card-cover">
               <img src={entry.data.heroImage} alt="" width="800" height="450" loading="lazy" />
               <span>
-                SERIES{" "}
+                {posts.length ? "SERIES" : "PROJECT"}{" "}
                 {posts.length > 0 && (
                   <span>
                     {posts.length} {posts.length === 1 ? "POST" : "POSTS"}
@@ -201,7 +201,7 @@ const featured = ["patch-hub", "actor-model"].map((id) =>
       <div>
         <p class="eyebrow">THE HUMAN BEHIND THE KEYBOARD</p>
         <h2>
-          Cloud infrastructure by day.
+          Software engineering by day.
           <br />A few side quests in between.
         </h2>
         <p>My background, experience, and a few ways to get in touch.</p>

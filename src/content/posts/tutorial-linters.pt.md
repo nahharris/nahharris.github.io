@@ -4,8 +4,8 @@ description: 'O extremo básico sobre um linter'
 pubDate: 'Oct 29 2024'
 heroImage: '/nuscripts.jpg'
 tags: ["linting","mac0332","tooling"]
-series: tools-and-setup
-seriesOrder: 2
+series: free-software-diary
+seriesOrder: 13
 postSlug: tutorial-linters
 language: pt-BR
 ---

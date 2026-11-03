@@ -1,11 +1,15 @@
 ---
-import { getCollection } from "astro:content";
-
 import Redirect from "../../components/LegacyRedirect.astro";
-import { legacyPostUrl, postUrl } from "../../lib/series";
+import { getOriginalPosts, originalPostId, legacyPostUrl, postUrl } from "../../lib/series";
 export async function getStaticPaths() {
-  return (await getCollection("posts")).flatMap((post) =>
-    [...new Set([legacyPostUrl(post).slice(6), post.id, post.id + ".md"])].map((id) => ({
+  return (await getOriginalPosts()).flatMap((post) =>
+    [
+      ...new Set([
+        legacyPostUrl(post).slice(6),
+        originalPostId(post),
+        originalPostId(post) + ".md",
+      ]),
+    ].map((id) => ({
       params: { id },
       props: { target: postUrl(post) },
     })),

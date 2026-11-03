@@ -1,9 +1,8 @@
 ---
-import { getCollection } from "astro:content";
-
 import Redirect from "../../../../components/LegacyRedirect.astro";
+import { getOriginalPosts } from "../../../../lib/series";
 export async function getStaticPaths() {
-  const posts = await getCollection("posts");
+  const posts = await getOriginalPosts();
   return [...new Set(posts.flatMap((post) => post.data.tags))].flatMap((tag) =>
     Array.from(
       { length: Math.ceil(posts.filter((post) => post.data.tags.includes(tag)).length / 10) },

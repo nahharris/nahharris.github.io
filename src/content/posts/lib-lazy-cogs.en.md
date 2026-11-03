@@ -36,5 +36,5 @@ We have some implementations of vectors and linked lists that are lazily clonabl
 
 LazyCogs also provides thread-safe aproaches to each structure. But I still have lots of collections to implement and even implement collections that take advantage of IDS that are `LazyClone`.
 
-Feel free to give a star to [LazyCogs](https://github.com/OJarrisonn/LazyCogs) in my GitHub and contribute if you found the idea interesting.
+Feel free to give a star to [LazyCogs](https://github.com/nahharris/LazyCogs) in my GitHub and contribute if you found the idea interesting.
 

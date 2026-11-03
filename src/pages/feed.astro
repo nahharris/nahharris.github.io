@@ -16,7 +16,7 @@ const topics = [...new Set(entries.flatMap((e) => e.tags))].sort();
 ---
 
 <Layout
-  title="Feed — Hannah Harrisonn"
+  title="Feed | Hannah Harrisonn"
   description="Browse all my projects, series, and posts. Search by topic, language, or collection."
 >
   <div class="page-wrap feed-page">
@@ -64,7 +64,11 @@ const topics = [...new Set(entries.flatMap((e) => e.tags))].sort();
               </button>
               <button type="button" data-kind="series" aria-pressed="false">
                 <span>Series</span>
-                <span>{index.series.length}</span>
+                <span>{index.series.filter((s) => s.posts.length > 0).length}</span>
+              </button>
+              <button type="button" data-kind="project" aria-pressed="false">
+                <span>Projects</span>
+                <span>{index.series.filter((s) => s.posts.length === 0).length}</span>
               </button>
               <button type="button" data-kind="post" aria-pressed="false">
                 <span>Posts</span>
@@ -91,6 +95,10 @@ const topics = [...new Set(entries.flatMap((e) => e.tags))].sort();
             <option value="">All languages</option>
             <option value="en">English</option>
             <option value="pt-BR">Português</option>
+            <option value="es">Español</option>
+            <option value="sv">Svenska</option>
+            <option value="fr">Français</option>
+            <option value="it">Italiano</option>
           </select>
           <button class="clear-filters" type="reset">
             Reset filters{" "}
@@ -107,8 +115,8 @@ const topics = [...new Set(entries.flatMap((e) => e.tags))].sort();
             <LuFolder size={26} className="ui-icon" focusable="false" />
           </span>
           <p>
-            <strong>A series is a home for a project or a topic.</strong> Its posts tell the story
-            as it unfolds.
+            <strong>Projects and series have a home here.</strong> Posts tell the story as it
+            unfolds.
           </p>
         </div>
       </aside>
@@ -190,7 +198,9 @@ const topics = [...new Set(entries.flatMap((e) => e.tags))].sort();
   function fromUrl() {
     const params = new URLSearchParams(location.search);
     search.value = params.get("q") ?? "";
-    kind = ["series", "post"].includes(params.get("type") ?? "") ? params.get("type")! : "all";
+    kind = ["series", "project", "post"].includes(params.get("type") ?? "")
+      ? params.get("type")!
+      : "all";
     series.value = params.get("series") ?? "";
     topic.value = params.get("tag") ?? "";
     language.value = params.get("language") ?? "";

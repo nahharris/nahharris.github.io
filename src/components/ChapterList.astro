@@ -19,7 +19,7 @@ const { posts, currentId } = Astro.props;
           <strong lang={post.data.language}>{shortTitle(post.data.title)}</strong>
           <small>{post.data.description}</small>
         </span>
-        <span class="chapter-language">{post.data.language === "en" ? "EN" : "PT"}</span>
+        <span class="chapter-language">{post.data.language.split("-")[0].toUpperCase()}</span>
         <span class="chapter-arrow" aria-hidden="true">
           {post.id === currentId ? (
             <LuCircle

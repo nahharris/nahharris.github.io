@@ -5,7 +5,7 @@ pubDate: "2024-08-15"
 heroImage: "/lazy-cogs.jpg"
 tags: ["rust","parsing","data"]
 color: "peach"
-links: [{"label":"Source on GitHub","url":"https://github.com/OJarrisonn/rsedn/"},{"label":"View on crates.io","url":"https://crates.io/crates/rsedn"}]
+links: [{"label":"Source on GitHub","url":"https://github.com/nahharris/rsedn/"},{"label":"View on crates.io","url":"https://crates.io/crates/rsedn"}]
 ---
 
 > `rsedn` is still an alpha; its interface may change.
@@ -14,6 +14,6 @@ links: [{"label":"Source on GitHub","url":"https://github.com/OJarrisonn/rsedn/"
 
 ![Crates.io Version](https://img.shields.io/crates/v/rsedn?style=flat-square&logo=rust)
 
-![GitHub Repo stars](https://img.shields.io/github/stars/OJarrisonn/rsedn?style=flat-square&logo=github)
+![GitHub Repo stars](https://img.shields.io/github/stars/nahharris/rsedn?style=flat-square&logo=github)
 
-[Explore OJarrisonn/rsedn on GitHub](https://github.com/OJarrisonn/rsedn).
+[Explore nahharris/rsedn on GitHub](https://github.com/nahharris/rsedn).

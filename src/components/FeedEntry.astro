@@ -11,7 +11,7 @@ const { entry, filterable = false } = Astro.props;
 ---
 
 <article
-  class:list={["feed-entry", entry.type]}
+  class:list={["feed-entry", entry.type === "project" ? "series" : entry.type]}
   data-feed-entry={filterable ? "" : undefined}
   data-type={entry.type}
   data-series={entry.seriesId}
@@ -21,7 +21,7 @@ const { entry, filterable = false } = Astro.props;
   style={"--entry-color:var(--" + entry.color + ")"}
 >
   <div class="feed-entry-icon" aria-hidden="true">
-    {entry.type === "series" ? (
+    {entry.type !== "post" ? (
       <LuFolder size={22} className="ui-icon" aria-hidden="true" focusable="false" />
     ) : (
       <LuFileText size={22} className="ui-icon" aria-hidden="true" focusable="false" />
@@ -29,9 +29,11 @@ const { entry, filterable = false } = Astro.props;
   </div>
   <div class="feed-entry-content">
     <div class="feed-entry-meta">
-      <span class="entry-kind">{entry.type === "series" ? "SERIES" : "POST"}</span>
+      <span class="entry-kind">
+        {entry.type === "project" ? "PROJECT" : entry.type === "series" ? "SERIES" : "POST"}
+      </span>
       <time datetime={entry.date.toISOString()}>
-        {entry.type === "series" ? "Updated " : ""}
+        {entry.type !== "post" ? "Updated " : ""}
         {dateLabel(entry.date)}
       </time>
       {entry.type === "series" && (entry.count ?? 0) > 0 && (
@@ -64,7 +66,7 @@ const { entry, filterable = false } = Astro.props;
       </div>
     </div>
   </div>
-  {entry.type === "series" && entry.image && (
+  {entry.type !== "post" && entry.image && (
     <a class="feed-entry-thumbnail" href={entry.url} tabindex="-1" aria-hidden="true">
       <img src={entry.image} width="160" height="110" loading="lazy" alt="" />
     </a>

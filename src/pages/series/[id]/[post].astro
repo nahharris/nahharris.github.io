@@ -1,9 +1,10 @@
 ---
-import { getCollection, render } from "astro:content";
+import { render } from "astro:content";
 
 import PostLayout from "../../../layouts/PostLayout.astro";
+import { getOriginalPosts } from "../../../lib/series";
 export async function getStaticPaths() {
-  return (await getCollection("posts")).map((post) => ({
+  return (await getOriginalPosts()).map((post) => ({
     params: { id: post.data.series.id, post: post.data.postSlug },
     props: { post },
   }));

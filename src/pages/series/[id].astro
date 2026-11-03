@@ -11,7 +11,7 @@ import {
 
 import Chapters from "../../components/ChapterList.astro";
 import Layout from "../../layouts/SiteLayout.astro";
-import { seriesPosts, postUrl, dateLabel, languageLabel } from "../../lib/series";
+import { seriesPosts, postUrl, dateLabel, languageLabel, postTranslations } from "../../lib/series";
 export async function getStaticPaths() {
   return (await getCollection("series")).map((series) => ({
     params: { id: series.id },
@@ -30,15 +30,30 @@ const latest = new Date(
     ...posts.map((p) => (p.data.updatedDate ?? p.data.pubDate).valueOf()),
   ),
 );
-const languages = [...new Set(posts.length ? posts.map((p) => p.data.language) : ["en"])];
+const languages = [
+  ...new Set(
+    posts.length
+      ? (
+          await Promise.all(
+            posts.map(async (p) => [
+              p.data.language,
+              ...(await postTranslations(p)).map((t) => t.data.language),
+            ]),
+          )
+        ).flat()
+      : ["en"],
+  ),
+];
 ---
 
-<Layout title={series.data.title + " — Hannah Harrisonn"} description={series.data.description}>
+<Layout title={series.data.title + " | Hannah Harrisonn"} description={series.data.description}>
   <div class="page-wrap series-detail" style={"--series-color:var(--" + series.data.color + ")"}>
     <nav class="breadcrumbs" aria-label="Breadcrumb">
       <a href="/feed/">Feed</a>
       <span aria-hidden="true">/</span>
-      <a href="/feed/?type=series">Series</a>
+      <a href={posts.length ? "/feed/?type=series" : "/feed/?type=project"}>
+        {posts.length ? "Series" : "Projects"}
+      </a>
       <span aria-hidden="true">/</span>
       <span>{series.data.title}</span>
     </nav>
@@ -48,7 +63,7 @@ const languages = [...new Set(posts.length ? posts.map((p) => p.data.language) :
           <span class="series-mark" aria-hidden="true">
             <LuFolder size={20} className="ui-icon" focusable="false" />
           </span>{" "}
-          SERIES{" "}
+          {posts.length ? "SERIES" : "PROJECT"}{" "}
           {posts.length > 0 && (
             <span class="series-count">
               {posts.length} {posts.length === 1 ? "POST" : "POSTS"}
@@ -102,7 +117,7 @@ const languages = [...new Set(posts.length ? posts.map((p) => p.data.language) :
           />
         )}
         <div class="series-visual-bottom">
-          <span>A WORKSHOP COLLECTION</span>
+          <span>{posts.length ? "A WORKSHOP COLLECTION" : "A WORKSHOP PROJECT"}</span>
           {posts.length > 0 && (
             <span>
               {String(posts.length).padStart(2, "0")} {posts.length === 1 ? "POST" : "POSTS"}
@@ -115,7 +130,7 @@ const languages = [...new Set(posts.length ? posts.map((p) => p.data.language) :
       <div>
         <section class="overview-section" aria-labelledby="overview-title">
           <h2 id="overview-title" class="content-section-title">
-            About this series
+            {posts.length ? "About this series" : "About this project"}
           </h2>
           <div class="article-body series-body">
             <Content />

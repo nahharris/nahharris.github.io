@@ -8,10 +8,10 @@ test("the feed contains all series and posts with search and filters", () => {
   const feed = page("feed/index.html");
   assert.equal(
     (feed.match(/<article[^>]+data-feed-entry/g) || []).length,
-    27,
-    "All seven series and twenty posts must be discoverable",
+    29,
+    "All eight projects or series and twenty-one posts must be discoverable",
   );
-  for (const label of ["Search", "Series", "Topic", "Language"])
+  for (const label of ["Search", "Series", "Projects", "Topic", "Language"])
     assert.ok(feed.includes(label), label);
 });
 test("posts belong to series and retain their original content", () => {
@@ -35,6 +35,14 @@ test("Me and all original URLs remain accessible", () => {
   const me = page("me/index.html");
   for (const label of ["Experience", "Education", "Contact", "Brex", "BikeSP"])
     assert.ok(me.includes(label), label);
+  assert.ok(me.includes("at home in the countryside"));
+  assert.ok(me.includes("Operational AI"));
+  assert.ok(me.includes("/me/pt-BR/"));
+  const mePt = page("me/pt-BR/index.html");
+  assert.ok(mePt.includes('lang="pt-BR"'));
+  assert.ok(mePt.includes("em casa no interior"));
+  assert.ok(mePt.includes("Operational AI"));
+  assert.ok(mePt.includes('href="/me/"'));
   const baseline = JSON.parse(
     readFileSync(new URL("./baseline-routes.json", import.meta.url), "utf8"),
   );
@@ -46,4 +54,12 @@ test("Me and all original URLs remain accessible", () => {
     ),
   );
   assert.ok(page("rss.xml").includes("/series/patch-hub/renderizando-patches/"));
+  assert.ok(page("series/tools-and-setup/tutorial-linters/index.html").includes("/series/free-software-diary/tutorial-linters/"));
+  const original = page("series/vaca/vaca-language-project/index.html");
+  const translated = page("series/vaca/vaca-language-project/pt-BR/index.html");
+  assert.ok(original.includes("/series/vaca/vaca-language-project/pt-BR/"));
+  assert.ok(translated.includes("Projeto da linguagem Vaca"));
+  assert.ok(translated.includes('lang="pt-BR"'));
+  assert.ok(!page("series/vibra/index.html").includes('id="posts"'));
+  assert.ok(page("series/vibra/index.html").includes("PROJECT"));
 });

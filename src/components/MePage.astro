@@ -1,0 +1,196 @@
+---
+import { Image } from "astro:assets";
+import { LuArrowRight, LuArrowUpRight, LuSparkles } from "react-icons/lu";
+
+import portrait from "../assets/hannah-portrait-tropical.png";
+import { experience, education, technologies, contacts } from "../data/profile";
+import Layout from "../layouts/SiteLayout.astro";
+interface Props {
+  language: "en" | "pt-BR";
+}
+const { language } = Astro.props;
+const pt = language === "pt-BR";
+---
+
+<Layout
+  title={pt ? "Sobre mim | Hannah Harrisonn" : "Me | Hannah Harrisonn"}
+  description={
+    pt
+      ? "Um pouco sobre Hannah Harrisonn: trajetória, experiência, formação e contato."
+      : "A little about Hannah Harrisonn: background, experience, education, and ways to get in touch."
+  }
+>
+  <div class="page-wrap me-page" lang={language}>
+    <header class="me-heading">
+      <div>
+        <p class="eyebrow">
+          {pt ? "A PESSOA POR TRÁS DO TECLADO" : "THE HUMAN BEHIND THE KEYBOARD"}
+        </p>
+        <h1>
+          {pt ? "Oi, eu sou Hannah." : "Hi, I'm Hannah."}
+          <br />
+          <em>
+            {pt ? "Gosto de descobrir como as coisas funcionam." : "I like figuring things out."}
+          </em>
+        </h1>
+        <p>
+          {pt
+            ? "Engenheira. Exploradora. Sempre curiosa."
+            : "Engineer. Explorer. Perpetually curious."}
+        </p>
+        <nav class="article-languages" aria-label={pt ? "Idioma da página" : "Page language"}>
+          <span>{pt ? "Idioma:" : "Language:"}</span>
+          <a href="/me/" lang="en" hreflang="en" aria-current={!pt ? "page" : undefined}>
+            English
+          </a>
+          <a href="/me/pt-BR/" lang="pt-BR" hreflang="pt-BR" aria-current={pt ? "page" : undefined}>
+            Português
+          </a>
+        </nav>
+      </div>
+      <figure class="me-portrait">
+        <Image
+          src={portrait}
+          format="webp"
+          quality={90}
+          densities={[1, 2]}
+          alt={pt ? "Retrato de Hannah Harrisonn" : "Portrait of Hannah Harrisonn"}
+          width="230"
+          height="230"
+        />
+        <figcaption>
+          {pt ? "NO BRASIL" : "BASED IN BRAZIL"}{" "}
+          <span aria-hidden="true">
+            <LuSparkles size="1em" className="ui-icon" aria-hidden="true" focusable="false" />
+          </span>
+        </figcaption>
+      </figure>
+    </header>
+    <nav class="me-section-nav" aria-label={pt ? "Nesta página" : "On this page"}>
+      <a href="#about">{pt ? "Sobre" : "About"}</a>
+      <a href="#experience">{pt ? "Experiência" : "Experience"}</a>
+      <a href="#education">{pt ? "Formação" : "Education"}</a>
+      <a href="#contact">{pt ? "Contato" : "Contact"}</a>
+      <button id="print-resume" type="button" hidden>
+        {pt ? "Imprimir currículo" : "Print résumé"}{" "}
+        <LuArrowUpRight size="1em" className="ui-icon" aria-hidden="true" focusable="false" />
+      </button>
+    </nav>
+    <div class="me-grid">
+      <div class="me-main">
+        <section id="about" class="me-section">
+          <p class="section-index">{pt ? "01 / UM POUCO DE CONTEXTO" : "01 / A LITTLE CONTEXT"}</p>
+          <h2>{pt ? "Tudo começou com um notebook antigo." : "It started with an old laptop."}</h2>
+          <p>
+            {pt
+              ? "Comecei a aprender a programar aos doze anos, em casa no interior, com um notebook antigo e uma conexão de internet de 1 Mbps. Desde então, sigo curiosa atrás de problemas interessantes."
+              : "I started learning to program at twelve, at home in the countryside, with an old laptop and a 1 Mbps internet connection. I've been following interesting problems ever since."}
+          </p>
+          <p>
+            {pt
+              ? "Sou formada em Ciência da Computação pela Universidade de São Paulo e trabalho no time de Operational AI da Brex, criando ferramentas para apoiar operações internas. Meu trabalho e meus interesses passam por sistemas, Rust, open source e as formas como diferentes tecnologias se conectam."
+              : "I'm a Computer Science graduate from the University of São Paulo, and I work on Brex's Operational AI team, building tools that support internal operations. My work and interests span systems, Rust, open source, and the ways different technologies fit together."}
+          </p>
+          <p>
+            {pt
+              ? "Gosto de explorar ideias novas, aprender rápido e criar coisas que posso compartilhar. O "
+              : "I like exploring unfamiliar ideas, learning quickly, and making things I can share. The "}
+            <a href="/feed/">feed</a>
+            {pt
+              ? " reúne esses projetos e as anotações por trás deles."
+              : " is a collection of those projects and the notes behind them."}
+          </p>
+        </section>
+        <section id="experience" class="me-section">
+          <p class="section-index">
+            {pt ? "02 / EXPERIÊNCIA PELO CAMINHO" : "02 / WORK ALONG THE WAY"}
+          </p>
+          <h2>{pt ? "Experiência" : "Experience"}</h2>
+          <ol class="resume-timeline">
+            {experience.map((job) => (
+              <li>
+                <div class="resume-role">
+                  <h3>{pt ? job.titlePt : job.title}</h3>
+                  <a href={job.url}>
+                    {job.company}{" "}
+                    <LuArrowUpRight
+                      size="1em"
+                      className="ui-icon"
+                      aria-hidden="true"
+                      focusable="false"
+                    />
+                  </a>
+                </div>
+                <p class="resume-date">{pt ? job.datesPt : job.dates}</p>
+                <p>{pt ? job.descriptionPt : job.description}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+        <section id="education" class="me-section">
+          <p class="section-index">{pt ? "03 / FORMAÇÃO" : "03 / FOUNDATIONS"}</p>
+          <h2>{pt ? "Formação" : "Education"}</h2>
+          {education.map((item) => (
+            <div class="education-entry">
+              <span class="resume-date">{item.dates}</span>
+              <h3>{pt ? item.titlePt : item.title}</h3>
+              <p>{pt ? item.schoolPt : item.school}</p>
+              <p class="education-location">{pt ? item.locationPt : item.location}</p>
+            </div>
+          ))}
+        </section>
+        <section class="me-section">
+          <p class="section-index">{pt ? "04 / NA CAIXA DE FERRAMENTAS" : "04 / IN THE TOOLBOX"}</p>
+          <h2>{pt ? "Tecnologias e interesses" : "Technologies & interests"}</h2>
+          <ul class="technology-list">
+            {technologies.map((technology) => (
+              <li>
+                {pt && technology === "Functional programming"
+                  ? "Programação funcional"
+                  : technology}
+              </li>
+            ))}
+          </ul>
+        </section>
+      </div>
+      <aside class="me-sidebar">
+        <section id="contact" class="contact-panel">
+          <p class="eyebrow">{pt ? "VAMOS CONVERSAR" : "LET'S CROSS PATHS"}</p>
+          <h2>{pt ? "Contato" : "Contact"}</h2>
+          <p>
+            {pt
+              ? "Tem uma ideia interessante, uma pergunta ou quer só dizer oi?"
+              : "Have an interesting idea, a question, or just want to say hello?"}
+          </p>
+          {contacts.map((contact) => (
+            <a href={contact.url} rel={contact.label === "Mastodon" ? "me" : undefined}>
+              <span>
+                <small>{pt && contact.label === "Email" ? "E-mail" : contact.label}</small>
+                <strong>{contact.value}</strong>
+              </span>
+              <span aria-hidden="true">
+                <LuArrowUpRight
+                  size="1em"
+                  className="ui-icon"
+                  aria-hidden="true"
+                  focusable="false"
+                />
+              </span>
+            </a>
+          ))}
+        </section>
+        <a class="me-feed-link" href="/feed/">
+          {pt ? "Veja o que ando criando" : "See what I've been making"}{" "}
+          <span aria-hidden="true">
+            <LuArrowRight size="1em" className="ui-icon" aria-hidden="true" focusable="false" />
+          </span>
+        </a>
+      </aside>
+    </div>
+  </div>
+</Layout>
+<script>
+  const printButton = document.querySelector<HTMLButtonElement>("#print-resume")!;
+  printButton.hidden = false;
+  printButton.addEventListener("click", () => window.print());
+</script>

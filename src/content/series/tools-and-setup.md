@@ -10,4 +10,4 @@ links: []
 
 A place for the practical side of programming: the machines I use, the tools I explore, and the things that make working with code a little easier.
 
-These notes include my equipment reference and an introduction to linters.
+These notes include my equipment reference.
