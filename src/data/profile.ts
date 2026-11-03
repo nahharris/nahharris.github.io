@@ -1,7 +1,7 @@
 export const experience = [
   {
-    title: "Software Engineer",
-    titlePt: "Software Engineer",
+    title: "Junior Software Engineer",
+    titlePt: "Junior Software Engineer",
     company: "Brex",
     url: "https://www.brex.com/",
     dates: "August 2026 — present",
