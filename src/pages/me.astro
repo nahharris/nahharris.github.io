@@ -1,0 +1,154 @@
+---
+import { Image } from "astro:assets";
+import { LuArrowRight, LuArrowUpRight, LuSparkles } from "react-icons/lu";
+
+import portrait from "../assets/hannah-portrait-tropical.png";
+import { experience, education, technologies, contacts } from "../data/profile";
+import Layout from "../layouts/SiteLayout.astro";
+---
+
+<Layout
+  title="Me — Hannah Harrisonn"
+  description="A little about Hannah Harrisonn: background, experience, education, and ways to get in touch."
+>
+  <div class="page-wrap me-page">
+    <header class="me-heading">
+      <div>
+        <p class="eyebrow">THE HUMAN BEHIND THE KEYBOARD</p>
+        <h1>
+          Hi, I'm Hannah.
+          <br />
+          <em>I like figuring things out.</em>
+        </h1>
+        <p>Engineer. Explorer. Perpetually curious.</p>
+      </div>
+      <figure class="me-portrait">
+        <Image
+          src={portrait}
+          format="webp"
+          quality={90}
+          densities={[1, 2]}
+          alt="Portrait of Hannah Harrisonn"
+          width="230"
+          height="230"
+        />
+        <figcaption>
+          BASED IN BRAZIL{" "}
+          <span aria-hidden="true">
+            <LuSparkles size="1em" className="ui-icon" aria-hidden="true" focusable="false" />
+          </span>
+        </figcaption>
+      </figure>
+    </header>
+    <nav class="me-section-nav" aria-label="On this page">
+      <a href="#about">About</a>
+      <a href="#experience">Experience</a>
+      <a href="#education">Education</a>
+      <a href="#contact">Contact</a>
+      <button id="print-resume" type="button" hidden>
+        Print résumé{" "}
+        <LuArrowUpRight size="1em" className="ui-icon" aria-hidden="true" focusable="false" />
+      </button>
+    </nav>
+    <div class="me-grid">
+      <div class="me-main">
+        <section id="about" class="me-section">
+          <p class="section-index">01 / A LITTLE CONTEXT</p>
+          <h2>It started with an old laptop.</h2>
+          <p>
+            I started learning to program at twelve, at home, with an old laptop and a 1 Mbps
+            internet connection. I've been following interesting problems ever since.
+          </p>
+          <p>
+            I'm a Computer Science graduate from the University of São Paulo, and I work on cloud
+            infrastructure at Brex. My work and interests span systems, Rust, open source, and the
+            ways different technologies fit together.
+          </p>
+          <p>
+            I like exploring unfamiliar ideas, learning quickly, and making things I can share. The{" "}
+            <a href="/feed/">feed</a> is a collection of those projects and the notes behind them.
+          </p>
+        </section>
+        <section id="experience" class="me-section">
+          <p class="section-index">02 / WORK ALONG THE WAY</p>
+          <h2>Experience</h2>
+          <ol class="resume-timeline">
+            {experience.map((job) => (
+              <li>
+                <div class="resume-role">
+                  <h3>{job.title}</h3>
+                  <a href={job.url}>
+                    {job.company}{" "}
+                    <LuArrowUpRight
+                      size="1em"
+                      className="ui-icon"
+                      aria-hidden="true"
+                      focusable="false"
+                    />
+                  </a>
+                </div>
+                <p class="resume-date">{job.dates}</p>
+                <p>{job.description}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+        <section id="education" class="me-section">
+          <p class="section-index">03 / FOUNDATIONS</p>
+          <h2>Education</h2>
+          {education.map((item) => (
+            <div class="education-entry">
+              <span class="resume-date">{item.dates}</span>
+              <h3>{item.title}</h3>
+              <p>{item.school}</p>
+              <p class="education-location">{item.location}</p>
+            </div>
+          ))}
+        </section>
+        <section class="me-section">
+          <p class="section-index">04 / IN THE TOOLBOX</p>
+          <h2>Technologies & interests</h2>
+          <ul class="technology-list">
+            {technologies.map((technology) => (
+              <li>{technology}</li>
+            ))}
+          </ul>
+        </section>
+      </div>
+      <aside class="me-sidebar">
+        <section id="contact" class="contact-panel">
+          <p class="eyebrow">LET'S CROSS PATHS</p>
+          <h2>Contact</h2>
+          <p>Have an interesting idea, a question, or just want to say hello?</p>
+          {contacts.map((contact) => (
+            <a href={contact.url} rel={contact.label === "Mastodon" ? "me" : undefined}>
+              <span>
+                <small>{contact.label}</small>
+                <strong>{contact.value}</strong>
+              </span>
+              <span aria-hidden="true">
+                <LuArrowUpRight
+                  size="1em"
+                  className="ui-icon"
+                  aria-hidden="true"
+                  focusable="false"
+                />
+              </span>
+            </a>
+          ))}
+        </section>
+        <a class="me-feed-link" href="/feed/">
+          See what I've been making{" "}
+          <span aria-hidden="true">
+            <LuArrowRight size="1em" className="ui-icon" aria-hidden="true" focusable="false" />
+          </span>
+        </a>
+      </aside>
+    </div>
+  </div>
+</Layout>
+<script>
+  const printButton = document.querySelector<HTMLButtonElement>("#print-resume")!;
+  printButton.hidden = false;
+  printButton.addEventListener("click", () => window.print());
+</script>

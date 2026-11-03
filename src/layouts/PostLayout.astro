@@ -1,61 +1,159 @@
 ---
 import { Image } from "astro:assets";
-import type { BlogSchema } from "src/content.config";
+import { getEntry } from "astro:content";
+import {
+  LuArrowLeft,
+  LuArrowRight,
+  LuArrowUp,
+  LuArrowUpRight,
+  LuChevronDown,
+} from "react-icons/lu";
 
-import BaseLayout from "./BaseLayout.astro";
-
-export interface Props extends BlogSchema {}
-
-const {
-  title,
-  description,
-  pubDate,
-  updatedDate,
-  heroImage,
-  badge,
-  tags = [],
-} = Astro.props as Props;
-
-const displayDate = pubDate;
+import portrait from "../assets/hannah-portrait-tropical.png";
+import Chapters from "../components/ChapterList.astro";
+import {
+  seriesPosts,
+  seriesUrl,
+  postUrl,
+  shortTitle,
+  dateLabel,
+  languageLabel,
+} from "../lib/series";
+import type { Post } from "../lib/series";
+import Layout from "./SiteLayout.astro";
+interface Props {
+  post: Post;
+}
+const { post } = Astro.props;
+const { data } = post;
+const series = (await getEntry(data.series))!;
+const chapters = await seriesPosts(series.id);
+const index = chapters.findIndex((p) => p.id === post.id);
+const previous = chapters[index - 1];
+const next = chapters[index + 1];
 ---
 
-<BaseLayout title={title} description={description} image={heroImage} , ogType="article">
-  <main class="md:flex md:justify-center">
-    <article class="prose prose-lg max-w-[750px] prose-img:mx-auto">
-      {heroImage && (
+<Layout
+  title={shortTitle(data.title) + " — Hannah Harrisonn"}
+  description={data.description}
+  article
+>
+  <div class="page-wrap article-page">
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <a href="/feed/">Feed</a>
+      <span aria-hidden="true">/</span>
+      <a href={seriesUrl(series)}>{series.data.title}</a>
+      <span aria-hidden="true">/</span>
+      <span>Post {index + 1}</span>
+    </nav>
+    <header class="article-heading">
+      <div class="article-info">
+        <time datetime={data.pubDate.toISOString()}>{dateLabel(data.pubDate)}</time>
+        <span>{languageLabel(data.language)}</span>
+        <span>
+          POST {index + 1} OF {chapters.length}
+        </span>
+      </div>
+      <h1 lang={data.language}>{shortTitle(data.title)}</h1>
+      <p class="lede" lang={data.language}>
+        {data.description}
+      </p>
+      <div class="byline">
         <Image
-          width={750}
-          height={422}
+          src={portrait}
           format="webp"
-          src={heroImage}
-          alt={title}
-          class="w-full mb-6"
+          quality={90}
+          densities={[1, 2]}
+          alt=""
+          width="36"
+          height="36"
         />
-      )}
-      <h1 class="title my-2 text-4xl font-bold">{title}</h1>
-      {description.length > 0 && (
-        <div class="bg-base-200 rounded-lg p-4 flex flex-row">
-          <div class="bg-accent p-0.5 w-1 rounded-2xl mr-4"></div>
-          <p>{description}</p>
+        <a href="/me/">
+          Hannah Harrisonn <small>Engineer & curious human</small>
+        </a>
+        {data.updatedDate && (
+          <time datetime={data.updatedDate.toISOString()}>
+            Updated {dateLabel(data.updatedDate)}
+          </time>
+        )}
+      </div>
+    </header>
+    <div class="reading-grid">
+      <article class="article-document" lang={data.language}>
+        <div class="article-body">
+          <slot />
         </div>
-      )}
-      {pubDate && <time>{displayDate}</time>}
-      <br />
-      {badge && <div class="badge badge-secondary my-1">{badge}</div>}
-      {tags &&
-        tags.map((tag) => (
-          <a href={`/blog/tag/${tag}`} class="badge badge-outline ml-2 no-underline">
-            {tag}
+        <div class="article-tags">
+          {data.tags.map((tag) => (
+            <a href={"/feed/?tag=" + encodeURIComponent(tag)}>#{tag}</a>
+          ))}
+        </div>
+        <nav class="chapter-navigation" aria-label="Post navigation">
+          {previous ? (
+            <a rel="prev" href={postUrl(previous)}>
+              <span>
+                <LuArrowLeft size="1em" className="ui-icon" aria-hidden="true" focusable="false" />{" "}
+                PREVIOUS POST
+              </span>
+              <strong lang={previous.data.language}>{shortTitle(previous.data.title)}</strong>
+            </a>
+          ) : (
+            <a href={seriesUrl(series)}>
+              <span>
+                <LuArrowUp size="1em" className="ui-icon" aria-hidden="true" focusable="false" />{" "}
+                SERIES OVERVIEW
+              </span>
+              <strong>{series.data.title}</strong>
+            </a>
+          )}
+          {next ? (
+            <a rel="next" href={postUrl(next)}>
+              <span>
+                NEXT POST{" "}
+                <LuArrowRight size="1em" className="ui-icon" aria-hidden="true" focusable="false" />
+              </span>
+              <strong lang={next.data.language}>{shortTitle(next.data.title)}</strong>
+            </a>
+          ) : (
+            <a href={seriesUrl(series)}>
+              <span>THAT'S THE LATEST POST</span>
+              <strong>
+                Back to {series.data.title}{" "}
+                <LuArrowUpRight
+                  size="1em"
+                  className="ui-icon"
+                  aria-hidden="true"
+                  focusable="false"
+                />
+              </strong>
+            </a>
+          )}
+        </nav>
+      </article>
+      <aside class="reader-aside">
+        <details class="post-directory" open>
+          <summary>
+            <span>IN THIS SERIES</span>
+            <strong>{series.data.title}</strong>
+            <small>
+              {chapters.length} {chapters.length === 1 ? "post" : "posts"}{" "}
+              <span aria-hidden="true">
+                <LuChevronDown
+                  size="1em"
+                  className="ui-icon"
+                  aria-hidden="true"
+                  focusable="false"
+                />
+              </span>
+            </small>
+          </summary>
+          <Chapters posts={chapters} currentId={post.id} />
+          <a class="all-chapters" href={seriesUrl(series)}>
+            Series overview{" "}
+            <LuArrowUpRight size="1em" className="ui-icon" aria-hidden="true" focusable="false" />
           </a>
-        ))}
-      {updatedDate && (
-        <div>
-          {" "}
-          Last updated on <time>{updatedDate}</time>{" "}
-        </div>
-      )}
-      <div class="divider my-2"></div>
-      <slot />
-    </article>
-  </main>
-</BaseLayout>
+        </details>
+      </aside>
+    </div>
+  </div>
+</Layout>

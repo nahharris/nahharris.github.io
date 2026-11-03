@@ -1,33 +1,11 @@
 ---
-import ProjectLayout from "@layouts/ProjectLayout.astro";
-import { type CollectionEntry, getCollection, render } from "astro:content";
-import type { ProjectSchema } from "src/content.config";
-import createSlug from "src/lib/createSlug";
-
-export async function getStaticPaths() {
-  const postEntries = await getCollection("projects");
-  return postEntries.map((entry) => ({
-    params: { id: createSlug(entry.data.title, entry.id) },
-    props: { entry },
-  }));
+import Redirect from "../../components/LegacyRedirect.astro";
+export function getStaticPaths() {
+  return [
+    { params: { id: "patch-hub" }, props: { target: "/series/patch-hub/" } },
+    { params: { id: "rs-edn" }, props: { target: "/series/rs-edn/" } },
+  ];
 }
-
-interface Props {
-  entry: CollectionEntry<"projects">;
-}
-
-const { entry } = Astro.props;
-const post: ProjectSchema = entry.data;
-const { Content } = await render(entry);
 ---
 
-<ProjectLayout
-  title={post.title}
-  description={post.description}
-  pubDate={post.pubDate}
-  heroImage={post.heroImage}
-  badge={post.badge}
-  externalUrl={post.externalUrl}
->
-  <Content />
-</ProjectLayout>
+<Redirect target={Astro.props.target} />

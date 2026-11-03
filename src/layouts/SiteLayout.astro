@@ -1,0 +1,104 @@
+---
+import { LuArrowUpRight, LuSparkles } from "react-icons/lu";
+
+import "../styles/prototype.css";
+import "../styles/architecture.css";
+interface Props {
+  title?: string;
+  description?: string;
+  article?: boolean;
+}
+const {
+  title = "Hannah Harrisonn — a curious corner of the internet",
+  description = "Projects, field notes, and things learned along the way. A personal space by Hannah Harrisonn.",
+  article = false,
+} = Astro.props;
+const path = Astro.url.pathname;
+const links = [
+  { href: "/", label: "Home", active: path === "/" },
+  { href: "/feed/", label: "Feed", active: path.startsWith("/feed") || path.startsWith("/series") },
+  { href: "/me/", label: "Me", active: path.startsWith("/me") },
+];
+---
+
+<!doctype html>
+<html lang="en" data-design="workshop">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={article ? "article" : "website"} />
+    <meta property="og:image" content={new URL("/social_img.webp", Astro.site)} />
+    <link rel="canonical" href={new URL(path, Astro.site)} />
+    <link rel="icon" href="/brand/earring-32.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/brand/earring-16.png" type="image/png" sizes="16x16" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="alternate" type="application/rss+xml" title="Hannah's posts" href="/rss.xml" />
+    <link rel="me" href="https://mastodon.social/@nahharris" />
+    <link rel="preload" href="/fonts/space-grotesk.ttf" as="font" type="font/ttf" crossorigin />
+  </head>
+  <body class="workshop">
+    <a class="skip-link" href="#main-content">
+      Skip to content
+    </a>
+    <div class="site-frame">
+      <header class="site-header">
+        <a class="wordmark" href="/" aria-label="Hannah Harrisonn home">
+          <img
+            class="brand-portrait"
+            src="/brand/portrait-64.png"
+            alt=""
+            width="44"
+            height="44"
+            loading="eager"
+            decoding="async"
+          />
+          <span>
+            hannah harrisonn<span class="wordmark-sub">A CURIOUS CORNER OF THE INTERNET</span>
+          </span>
+        </a>
+        <nav aria-label="Main navigation">
+          {links.map((link) => (
+            <a href={link.href} aria-current={link.active ? "page" : undefined}>
+              {link.label}
+            </a>
+          ))}
+        </nav>
+        <a class="header-contact" href="/me/#contact">
+          Say hello{" "}
+          <span aria-hidden="true">
+            <LuArrowUpRight size="1em" className="ui-icon" aria-hidden="true" focusable="false" />
+          </span>
+        </a>
+      </header>
+      <main id="main-content" tabindex="-1">
+        <slot />
+      </main>
+      <footer class="site-footer">
+        <a class="footer-name" href="/">
+          hannah harrisonn{" "}
+          <span aria-hidden="true">
+            <LuSparkles size="1em" className="ui-icon" aria-hidden="true" focusable="false" />
+          </span>
+        </a>
+        <p>Stay curious. Make things. Share what you learn.</p>
+        <div>
+          <a href="/feed/">Feed</a>
+          <a href="/me/">Me</a>
+          <a href="https://github.com/nahharris">
+            GitHub{" "}
+            <LuArrowUpRight size="1em" className="ui-icon" aria-hidden="true" focusable="false" />
+          </a>
+          <a href="/rss.xml">
+            RSS{" "}
+            <LuArrowUpRight size="1em" className="ui-icon" aria-hidden="true" focusable="false" />
+          </a>
+        </div>
+        <small>© {new Date().getFullYear()} · Made with curiosity, in Brazil.</small>
+      </footer>
+    </div>
+  </body>
+</html>

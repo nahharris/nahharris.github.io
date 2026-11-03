@@ -1,0 +1,196 @@
+---
+import { getCollection, render } from "astro:content";
+import {
+  LuArrowDown,
+  LuArrowLeft,
+  LuArrowRight,
+  LuArrowUpRight,
+  LuFolder,
+  LuSparkles,
+} from "react-icons/lu";
+
+import Chapters from "../../components/ChapterList.astro";
+import Layout from "../../layouts/SiteLayout.astro";
+import { seriesPosts, postUrl, dateLabel, languageLabel } from "../../lib/series";
+export async function getStaticPaths() {
+  return (await getCollection("series")).map((series) => ({
+    params: { id: series.id },
+    props: { series },
+  }));
+}
+const { series } = Astro.props;
+const posts = await seriesPosts(series.id);
+const { Content } = await render(series);
+const started = new Date(
+  Math.min(series.data.pubDate.valueOf(), ...posts.map((p) => p.data.pubDate.valueOf())),
+);
+const latest = new Date(
+  Math.max(
+    series.data.pubDate.valueOf(),
+    ...posts.map((p) => (p.data.updatedDate ?? p.data.pubDate).valueOf()),
+  ),
+);
+const languages = [...new Set(posts.length ? posts.map((p) => p.data.language) : ["en"])];
+---
+
+<Layout title={series.data.title + " — Hannah Harrisonn"} description={series.data.description}>
+  <div class="page-wrap series-detail" style={"--series-color:var(--" + series.data.color + ")"}>
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <a href="/feed/">Feed</a>
+      <span aria-hidden="true">/</span>
+      <a href="/feed/?type=series">Series</a>
+      <span aria-hidden="true">/</span>
+      <span>{series.data.title}</span>
+    </nav>
+    <header class="series-hero">
+      <div>
+        <p class="eyebrow">
+          <span class="series-mark" aria-hidden="true">
+            <LuFolder size={20} className="ui-icon" focusable="false" />
+          </span>{" "}
+          SERIES{" "}
+          {posts.length > 0 && (
+            <span class="series-count">
+              {posts.length} {posts.length === 1 ? "POST" : "POSTS"}
+            </span>
+          )}
+        </p>
+        <h1>{series.data.title}</h1>
+        <p class="lede">{series.data.description}</p>
+        <div class="series-hero-actions">
+          {posts.length > 0 ? (
+            <a class="action primary" href={postUrl(posts[0])}>
+              Read the first post{" "}
+              <span aria-hidden="true">
+                <LuArrowRight size="1em" className="ui-icon" aria-hidden="true" focusable="false" />
+              </span>
+            </a>
+          ) : (
+            <a class="action primary" href="#resources">
+              Explore the project{" "}
+              <span aria-hidden="true">
+                <LuArrowUpRight
+                  size="1em"
+                  className="ui-icon"
+                  aria-hidden="true"
+                  focusable="false"
+                />
+              </span>
+            </a>
+          )}
+          {posts.length > 0 && (
+            <a class="text-link" href="#posts">
+              Browse all {posts.length} posts{" "}
+              <LuArrowDown size="1em" className="ui-icon" aria-hidden="true" focusable="false" />
+            </a>
+          )}
+        </div>
+      </div>
+      <div class="series-visual">
+        <div class="series-visual-bar">
+          <span>{series.id}</span>
+          <span aria-hidden="true">
+            <LuSparkles size="1em" className="ui-icon" aria-hidden="true" focusable="false" />
+          </span>
+        </div>
+        {series.data.heroImage && (
+          <img
+            src={series.data.heroImage}
+            alt={series.data.title + " — project cover"}
+            width="800"
+            height="500"
+          />
+        )}
+        <div class="series-visual-bottom">
+          <span>A WORKSHOP COLLECTION</span>
+          {posts.length > 0 && (
+            <span>
+              {String(posts.length).padStart(2, "0")} {posts.length === 1 ? "POST" : "POSTS"}
+            </span>
+          )}
+        </div>
+      </div>
+    </header>
+    <div class="series-detail-grid">
+      <div>
+        <section class="overview-section" aria-labelledby="overview-title">
+          <h2 id="overview-title" class="content-section-title">
+            About this series
+          </h2>
+          <div class="article-body series-body">
+            <Content />
+          </div>
+        </section>
+        {posts.length > 0 && (
+          <section id="posts" class="series-posts" aria-labelledby="posts-title">
+            <div class="content-section-heading">
+              <h2 id="posts-title">Posts</h2>
+              <span>
+                {posts.length} {posts.length === 1 ? "entry" : "entries"} · reading order
+              </span>
+            </div>
+            <Chapters posts={posts} />
+          </section>
+        )}
+      </div>
+      <aside class="series-facts">
+        <section class="facts-panel">
+          <p class="eyebrow">AT A GLANCE</p>
+          <dl>
+            {posts.length > 0 && (
+              <div>
+                <dt>Posts</dt>
+                <dd>{posts.length}</dd>
+              </div>
+            )}
+            <div>
+              <dt>Started</dt>
+              <dd>
+                <time datetime={started.toISOString()}>{dateLabel(started)}</time>
+              </dd>
+            </div>
+            <div>
+              <dt>Latest activity</dt>
+              <dd>
+                <time datetime={latest.toISOString()}>{dateLabel(latest)}</time>
+              </dd>
+            </div>
+            <div>
+              <dt>Language</dt>
+              <dd>{languages.map(languageLabel).join(" / ")}</dd>
+            </div>
+          </dl>
+          <div class="topic-list">
+            {series.data.tags.map((tag) => (
+              <a href={"/feed/?tag=" + encodeURIComponent(tag)}>{tag}</a>
+            ))}
+          </div>
+        </section>
+        <section id="resources" class="resource-panel">
+          <p class="eyebrow">LINKS & RESOURCES</p>
+          {series.data.links.length ? (
+            series.data.links.map((link) => (
+              <a href={link.url}>
+                {link.label}
+                <span aria-hidden="true">
+                  <LuArrowUpRight
+                    size="1em"
+                    className="ui-icon"
+                    aria-hidden="true"
+                    focusable="false"
+                  />
+                </span>
+              </a>
+            ))
+          ) : (
+            <p>The posts in this series contain the references and resources used along the way.</p>
+          )}
+        </section>
+        <a class="back-to-feed" href="/feed/">
+          <LuArrowLeft size="1em" className="ui-icon" aria-hidden="true" focusable="false" /> Back
+          to the feed
+        </a>
+      </aside>
+    </div>
+  </div>
+</Layout>

@@ -1,19 +1,20 @@
 import rss from "@astrojs/rss";
 import { getCollection } from "astro:content";
 
-import { SITE_DESCRIPTION, SITE_TITLE } from "../config";
-
-export async function get(_context) {
-  const blog = await getCollection("blog");
+import { postUrl, shortTitle } from "../lib/series";
+export async function GET(context) {
+  const posts = (await getCollection("posts")).sort(
+    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+  );
   return rss({
-    title: SITE_TITLE,
-    description: SITE_DESCRIPTION,
-    site: import.meta.env.SITE,
-    items: blog.map((post) => ({
-      title: post.data.title,
+    title: "Hannah Harrisonn — posts from the workshop",
+    description: "Projects, notes, and things learned along the way.",
+    site: context.site,
+    items: posts.map((post) => ({
+      title: shortTitle(post.data.title),
       pubDate: post.data.pubDate,
       description: post.data.description,
-      link: `/blog/${post.slug}/`,
+      link: postUrl(post),
     })),
   });
 }

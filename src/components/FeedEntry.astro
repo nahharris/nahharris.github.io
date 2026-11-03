@@ -1,0 +1,72 @@
+---
+import { LuFolder, LuFileText, LuArrowUpRight } from "react-icons/lu";
+
+import { dateLabel, languageLabel, seriesUrl } from "../lib/series";
+import type { FeedItem } from "../lib/series";
+interface Props {
+  entry: FeedItem;
+  filterable?: boolean;
+}
+const { entry, filterable = false } = Astro.props;
+---
+
+<article
+  class:list={["feed-entry", entry.type]}
+  data-feed-entry={filterable ? "" : undefined}
+  data-type={entry.type}
+  data-series={entry.seriesId}
+  data-tags={entry.tags.join("|")}
+  data-languages={entry.languages.join("|")}
+  data-search={[entry.title, entry.description, entry.seriesTitle, ...entry.tags].join(" ")}
+  style={"--entry-color:var(--" + entry.color + ")"}
+>
+  <div class="feed-entry-icon" aria-hidden="true">
+    {entry.type === "series" ? (
+      <LuFolder size={22} className="ui-icon" aria-hidden="true" focusable="false" />
+    ) : (
+      <LuFileText size={22} className="ui-icon" aria-hidden="true" focusable="false" />
+    )}
+  </div>
+  <div class="feed-entry-content">
+    <div class="feed-entry-meta">
+      <span class="entry-kind">{entry.type === "series" ? "SERIES" : "POST"}</span>
+      <time datetime={entry.date.toISOString()}>
+        {entry.type === "series" ? "Updated " : ""}
+        {dateLabel(entry.date)}
+      </time>
+      {entry.type === "series" && (entry.count ?? 0) > 0 && (
+        <span>
+          {entry.count} {entry.count === 1 ? "post" : "posts"}
+        </span>
+      )}
+      <span class="entry-language">{entry.languages.map(languageLabel).join(" / ")}</span>
+    </div>
+    <h3>
+      <a href={entry.url} lang={entry.type === "post" ? entry.languages[0] : undefined}>
+        {entry.title}
+        <span aria-hidden="true">
+          <LuArrowUpRight size={20} className="ui-icon" focusable="false" />
+        </span>
+      </a>
+    </h3>
+    <p lang={entry.type === "post" ? entry.languages[0] : undefined}>{entry.description}</p>
+    <div class="feed-entry-bottom">
+      {entry.type === "post" && (
+        <a class="parent-series" href={seriesUrl(entry.seriesId)}>
+          <LuFolder size={14} className="ui-icon" aria-hidden="true" focusable="false" />{" "}
+          {entry.seriesTitle}
+        </a>
+      )}
+      <div class="feed-entry-tags">
+        {entry.tags.slice(0, 3).map((tag) => (
+          <a href={"/feed/?tag=" + encodeURIComponent(tag)}>{tag}</a>
+        ))}
+      </div>
+    </div>
+  </div>
+  {entry.type === "series" && entry.image && (
+    <a class="feed-entry-thumbnail" href={entry.url} tabindex="-1" aria-hidden="true">
+      <img src={entry.image} width="160" height="110" loading="lazy" alt="" />
+    </a>
+  )}
+</article>

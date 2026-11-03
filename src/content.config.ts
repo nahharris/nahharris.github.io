@@ -1,45 +1,35 @@
 import { glob } from "astro/loaders";
-import { defineCollection, z } from "astro:content";
+import { defineCollection, reference, z } from "astro:content";
 const blogSchema = z.object({
   title: z.string(),
   description: z.string(),
   pubDate: z.coerce.date(),
-  updatedDate: z.string().optional(),
+  updatedDate: z.coerce.date().optional(),
   heroImage: z.string().optional(),
   badge: z.string().optional(),
-  tags: z
-    .array(z.string())
-    .refine((items) => new Set(items).size === items.length, {
-      message: "tags must be unique",
-    })
-    .optional(),
+  tags: z.array(z.string()).default([]),
+  series: reference("series"),
+  seriesOrder: z.number().int().positive(),
+  postSlug: z.string().regex(/^[a-z0-9-]+$/),
+  language: z.enum(["en", "pt-BR"]),
 });
-
-const projectSchema = z.object({
+const seriesSchema = z.object({
   title: z.string(),
   description: z.string(),
   pubDate: z.coerce.date(),
   heroImage: z.string().optional(),
-  badge: z.string().optional(),
-  externalUrl: z.string().optional(),
+  tags: z.array(z.string()).default([]),
+  color: z.enum(["mauve", "peach", "teal", "green"]).default("mauve"),
+  links: z.array(z.object({ label: z.string(), url: z.string() })).default([]),
 });
-
 export type BlogSchema = z.infer<typeof blogSchema>;
-export type ProjectSchema = z.infer<typeof projectSchema>;
-
-const blogCollection = defineCollection({
-  loader: glob({ pattern: "**/[^_]*.md", base: "./src/content/blog" }),
-  schema: blogSchema,
-});
-const projectCollection = defineCollection({
-  loader: glob({
-    pattern: ["**/[^_]*.md", "**/[^_]*.mdx"],
-    base: "./src/content/projects",
-  }),
-  schema: projectSchema,
-});
-
 export const collections = {
-  blog: blogCollection,
-  projects: projectCollection,
+  posts: defineCollection({
+    loader: glob({ pattern: "**/*.md", base: "./src/content/posts" }),
+    schema: blogSchema,
+  }),
+  series: defineCollection({
+    loader: glob({ pattern: "**/*.md", base: "./src/content/series" }),
+    schema: seriesSchema,
+  }),
 };

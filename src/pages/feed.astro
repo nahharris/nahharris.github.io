@@ -1,0 +1,230 @@
+---
+import {
+  LuArrowRight,
+  LuArrowUpRight,
+  LuFolder,
+  LuRotateCcw,
+  LuSearch,
+  LuSparkles,
+} from "react-icons/lu";
+
+import Entry from "../components/FeedEntry.astro";
+import Layout from "../layouts/SiteLayout.astro";
+import { contentIndex, feedItems } from "../lib/series";
+const [index, entries] = await Promise.all([contentIndex(), feedItems()]);
+const topics = [...new Set(entries.flatMap((e) => e.tags))].sort();
+---
+
+<Layout
+  title="Feed — Hannah Harrisonn"
+  description="Browse all my projects, series, and posts. Search by topic, language, or collection."
+>
+  <div class="page-wrap feed-page">
+    <header class="feed-heading">
+      <div>
+        <p class="eyebrow">FROM THE WORKSHOP</p>
+        <h1>
+          Things made.
+          <br />
+          <em>Things learned.</em>
+        </h1>
+        <p>Projects and the notes behind them, all in one place.</p>
+      </div>
+      <a class="feed-rss" href="/rss.xml">
+        Subscribe with RSS{" "}
+        <LuArrowUpRight size="1em" className="ui-icon" aria-hidden="true" focusable="false" />
+      </a>
+    </header>
+    <div class="search-wrap" id="feed-search-wrap" hidden>
+      <label for="feed-search" class="visually-hidden">
+        Search series and posts
+      </label>
+      <span aria-hidden="true">
+        <LuSearch size={20} className="ui-icon" focusable="false" />
+      </span>
+      <input
+        id="feed-search"
+        type="search"
+        name="q"
+        form="feed-controls"
+        placeholder="Search series, posts, or topics…"
+        autocomplete="off"
+      />
+      <kbd aria-hidden="true">SEARCH</kbd>
+    </div>
+    <div class="feed-layout">
+      <aside class="feed-sidebar">
+        <form id="feed-controls" hidden role="search" aria-label="Search and filter the feed">
+          <fieldset>
+            <legend>SHOW ME</legend>
+            <div class="type-controls">
+              <button type="button" data-kind="all" aria-pressed="true">
+                <span>Everything</span>
+                <span>{entries.length}</span>
+              </button>
+              <button type="button" data-kind="series" aria-pressed="false">
+                <span>Series</span>
+                <span>{index.series.length}</span>
+              </button>
+              <button type="button" data-kind="post" aria-pressed="false">
+                <span>Posts</span>
+                <span>{index.posts.length}</span>
+              </button>
+            </div>
+          </fieldset>
+          <label for="series-filter">Series</label>
+          <select id="series-filter" name="series">
+            <option value="">All series</option>
+            {index.series.map(({ entry }) => (
+              <option value={entry.id}>{entry.data.title}</option>
+            ))}
+          </select>
+          <label for="topic-filter">Topic</label>
+          <select id="topic-filter" name="tag">
+            <option value="">All topics</option>
+            {topics.map((topic) => (
+              <option value={topic}>{topic}</option>
+            ))}
+          </select>
+          <label for="language-filter">Language</label>
+          <select id="language-filter" name="language">
+            <option value="">All languages</option>
+            <option value="en">English</option>
+            <option value="pt-BR">Português</option>
+          </select>
+          <button class="clear-filters" type="reset">
+            Reset filters{" "}
+            <LuRotateCcw size="1em" className="ui-icon" aria-hidden="true" focusable="false" />
+          </button>
+        </form>
+        <noscript>
+          <p class="no-script-note">
+            All series and posts are listed here. Enable JavaScript to use search and filters.
+          </p>
+        </noscript>
+        <div class="feed-sidebar-note">
+          <span aria-hidden="true">
+            <LuFolder size={26} className="ui-icon" focusable="false" />
+          </span>
+          <p>
+            <strong>A series is a home for a project or a topic.</strong> Its posts tell the story
+            as it unfolds.
+          </p>
+        </div>
+      </aside>
+      <section class="feed-results" aria-labelledby="results-title">
+        <div class="results-bar">
+          <h2 id="results-title" aria-live="polite" aria-atomic="true">
+            {entries.length} entries
+          </h2>
+          <span>NEWEST ACTIVITY FIRST</span>
+        </div>
+        <div id="feed-entries">
+          {entries.map((entry) => (
+            <Entry entry={entry} filterable />
+          ))}
+        </div>
+        <div id="feed-empty" class="feed-empty" hidden>
+          <span aria-hidden="true">
+            <LuSparkles size="1em" className="ui-icon" aria-hidden="true" focusable="false" />
+          </span>
+          <h2>No matches this time.</h2>
+          <p>Try a different word or give your filters a little more room.</p>
+          <button id="empty-reset" type="button">
+            Clear search & filters{" "}
+            <LuArrowRight size="1em" className="ui-icon" aria-hidden="true" focusable="false" />
+          </button>
+        </div>
+      </section>
+    </div>
+  </div>
+</Layout>
+<script>
+  const form = document.querySelector<HTMLFormElement>("#feed-controls")!;
+  const search = document.querySelector<HTMLInputElement>("#feed-search")!;
+  const series = document.querySelector<HTMLSelectElement>("#series-filter")!;
+  const topic = document.querySelector<HTMLSelectElement>("#topic-filter")!;
+  const language = document.querySelector<HTMLSelectElement>("#language-filter")!;
+  const buttons = [...document.querySelectorAll<HTMLButtonElement>("[data-kind]")];
+  const entries = [...document.querySelectorAll<HTMLElement>("[data-feed-entry]")];
+  const normalize = (text: string) =>
+    text
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+  let kind = "all";
+  function update(save = true) {
+    const terms = normalize(search.value.trim()).split(/\s+/).filter(Boolean);
+    let count = 0;
+    for (const entry of entries) {
+      const text = normalize(entry.dataset.search ?? "");
+      const match =
+        (kind === "all" || entry.dataset.type === kind) &&
+        (!series.value || entry.dataset.series === series.value) &&
+        (!topic.value || (entry.dataset.tags ?? "").split("|").includes(topic.value)) &&
+        (!language.value || (entry.dataset.languages ?? "").split("|").includes(language.value)) &&
+        terms.every((term) => text.includes(term));
+      entry.hidden = !match;
+      if (match) count++;
+    }
+    buttons.forEach((button) =>
+      button.setAttribute("aria-pressed", String(button.dataset.kind === kind)),
+    );
+    document.querySelector("#results-title")!.textContent =
+      count + " " + (count === 1 ? "entry" : "entries");
+    (document.querySelector("#feed-empty") as HTMLElement).hidden = count !== 0;
+    if (save) {
+      const params = new URLSearchParams();
+      if (search.value.trim()) params.set("q", search.value.trim());
+      if (kind !== "all") params.set("type", kind);
+      if (series.value) params.set("series", series.value);
+      if (topic.value) params.set("tag", topic.value);
+      if (language.value) params.set("language", language.value);
+      history.replaceState(
+        null,
+        "",
+        location.pathname + (params.size ? "?" + params.toString() : ""),
+      );
+    }
+  }
+  function fromUrl() {
+    const params = new URLSearchParams(location.search);
+    search.value = params.get("q") ?? "";
+    kind = ["series", "post"].includes(params.get("type") ?? "") ? params.get("type")! : "all";
+    series.value = params.get("series") ?? "";
+    topic.value = params.get("tag") ?? "";
+    language.value = params.get("language") ?? "";
+    update(false);
+  }
+  function reset() {
+    form.reset();
+    search.value = "";
+    kind = "all";
+    update();
+  }
+  form.hidden = false;
+  (document.querySelector("#feed-search-wrap") as HTMLElement).hidden = false;
+  buttons.forEach((button) =>
+    button.addEventListener("click", () => {
+      kind = button.dataset.kind!;
+      update();
+    }),
+  );
+  search.addEventListener("input", () => update());
+  for (const control of [series, topic, language])
+    control.addEventListener("change", () => update());
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    update();
+  });
+  form.addEventListener("reset", () => {
+    queueMicrotask(() => {
+      search.value = "";
+      kind = "all";
+      update();
+    });
+  });
+  document.querySelector("#empty-reset")!.addEventListener("click", reset);
+  window.addEventListener("popstate", fromUrl);
+  fromUrl();
+</script>

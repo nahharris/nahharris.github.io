@@ -1,0 +1,39 @@
+---
+import { LuArrowUpRight, LuCircle } from "react-icons/lu";
+
+import { postUrl, shortTitle, languageLabel } from "../lib/series";
+import type { Post } from "../lib/series";
+interface Props {
+  posts: Post[];
+  currentId?: string;
+}
+const { posts, currentId } = Astro.props;
+---
+
+<ol class="chapter-list">
+  {posts.map((post, index) => (
+    <li>
+      <a href={postUrl(post)} aria-current={post.id === currentId ? "page" : undefined}>
+        <span class="chapter-number">{String(index + 1).padStart(2, "0")}</span>
+        <span>
+          <strong lang={post.data.language}>{shortTitle(post.data.title)}</strong>
+          <small>{post.data.description}</small>
+        </span>
+        <span class="chapter-language">{post.data.language === "en" ? "EN" : "PT"}</span>
+        <span class="chapter-arrow" aria-hidden="true">
+          {post.id === currentId ? (
+            <LuCircle
+              size="0.5em"
+              className="ui-icon"
+              aria-hidden="true"
+              focusable="false"
+              fill="currentColor"
+            />
+          ) : (
+            <LuArrowUpRight size="1em" className="ui-icon" aria-hidden="true" focusable="false" />
+          )}
+        </span>
+      </a>
+    </li>
+  ))}
+</ol>

@@ -1,72 +1,215 @@
 ---
-import HorizontalCard from "@components/HorizontalCard.astro";
-import BaseLayout from "@layouts/BaseLayout.astro";
-import { getCollection } from "astro:content";
-import createSlug from "src/lib/createSlug";
+import { Image } from "astro:assets";
+import {
+  LuArrowRight,
+  LuArrowUpRight,
+  LuCircle,
+  LuGlobe,
+  LuInfinity,
+  LuSparkles,
+  LuSquare,
+} from "react-icons/lu";
 
-const posts = (await getCollection("blog")).sort(
-  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+import portrait from "../assets/hannah-portrait-tropical.png";
+import Entry from "../components/FeedEntry.astro";
+import Layout from "../layouts/SiteLayout.astro";
+import { contentIndex, feedItems, seriesUrl } from "../lib/series";
+const [index, entries] = await Promise.all([contentIndex(), feedItems()]);
+const featured = ["patch-hub", "actor-model"].map((id) =>
+  index.series.find((s) => s.entry.id === id)!,
 );
-
-const projects = (await getCollection("projects")).sort(
-  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
-);
-
-const last_posts = posts.slice(0, 5);
-const last_projects = projects.slice(0, 5);
 ---
 
-<BaseLayout sideBarActiveItemID="home">
-  <div class="pb-12 mt-5">
-    <div class="text-xl py-1">Hey there 👋</div>
-    <div class="text-5xl font-bold">I'm Hannah Harrisonn</div>
-    <div class="text-3xl py-3 font-bold">Computer Science student</div>
-    <div class="py-2">
-      <text class="text-lg">
-        Welcome to my personal website! Here you can find my latest projects, blog posts and more.
-        Feel free to explore and reach out to me if you have any questions or just want to chat.
-      </text>
+<Layout>
+  <div class="home-wrap new-home">
+    <section class="workshop-hero" aria-labelledby="welcome-title">
+      <div class="hero-copy">
+        <p class="eyebrow">
+          <LuCircle
+            size={8}
+            className="status-dot ui-icon"
+            fill="currentColor"
+            aria-hidden="true"
+            focusable="false"
+          />{" "}
+          HELLO, INTERNET. I'M HANNAH.
+        </p>
+        <h1 id="welcome-title">
+          Always building.
+          <br />
+          Still <em>curious.</em>
+          <span class="hero-spark" aria-hidden="true">
+            <LuSparkles size="1em" className="ui-icon" aria-hidden="true" focusable="false" />
+          </span>
+        </h1>
+        <p class="hero-description">
+          An engineer, an open-source explorer, and a collector of interesting problems. This is
+          where I share the things I make and learn.
+        </p>
+        <div class="hero-actions">
+          <a class="action primary" href="/feed/">
+            Explore the feed{" "}
+            <span aria-hidden="true">
+              <LuArrowUpRight size="1em" className="ui-icon" aria-hidden="true" focusable="false" />
+            </span>
+          </a>
+          <a class="hero-secondary" href="/me/">
+            Meet the human{" "}
+            <span aria-hidden="true">
+              <LuArrowRight size="1em" className="ui-icon" aria-hidden="true" focusable="false" />
+            </span>
+          </a>
+        </div>
+        <p class="hero-location">
+          <span aria-hidden="true">
+            <LuGlobe size="1em" className="ui-icon" aria-hidden="true" focusable="false" />
+          </span>{" "}
+          BASED IN BRAZIL · AT HOME ON THE INTERNET
+        </p>
+      </div>
+      <figure class="hero-scene">
+        <div class="scene-title">
+          <span>
+            <LuSquare
+              size={7}
+              className="scene-indicator ui-icon"
+              fill="currentColor"
+              aria-hidden="true"
+              focusable="false"
+            />{" "}
+            THE WORKSHOP / AFTER HOURS
+          </span>
+          <span>
+            01—
+            <LuInfinity size="1em" className="ui-icon" aria-hidden="true" focusable="false" />
+          </span>
+        </div>
+        <img
+          src="/art/workshop.svg"
+          width="480"
+          height="350"
+          alt="A pixel-art workspace with computers, a plant, and a window overlooking a futuristic city at night"
+          fetchpriority="high"
+        />
+        <figcaption>
+          <span>A place for ideas to become things.</span>
+          <span aria-hidden="true">
+            <LuSparkles size="1em" className="ui-icon" aria-hidden="true" focusable="false" />{" "}
+            <LuSparkles size="1em" className="ui-icon" aria-hidden="true" focusable="false" />{" "}
+            <LuSparkles size="1em" className="ui-icon" aria-hidden="true" focusable="false" />
+          </span>
+        </figcaption>
+      </figure>
+    </section>
+    <div class="home-intro-strip">
+      <p>Projects have a home. Posts tell their story.</p>
+      <a href="/feed/?type=series">
+        {index.series.length} series{" "}
+        <span aria-hidden="true">
+          <LuArrowUpRight size="1em" className="ui-icon" aria-hidden="true" focusable="false" />
+        </span>
+      </a>
+      <a href="/feed/?type=post">
+        {index.posts.length} posts{" "}
+        <span aria-hidden="true">
+          <LuArrowUpRight size="1em" className="ui-icon" aria-hidden="true" focusable="false" />
+        </span>
+      </a>
     </div>
+    <section class="home-series">
+      <div class="section-title">
+        <div>
+          <span class="section-index">PICK A THREAD</span>
+          <h2>A good place to start.</h2>
+        </div>
+        <a class="text-link" href="/feed/?type=series">
+          All series{" "}
+          <LuArrowUpRight size="1em" className="ui-icon" aria-hidden="true" focusable="false" />
+        </a>
+      </div>
+      <div class="series-cards">
+        {featured.map(({ entry, posts }) => (
+          <a
+            class="series-card"
+            href={seriesUrl(entry)}
+            style={"--series-color:var(--" + entry.data.color + ")"}
+          >
+            <div class="series-card-cover">
+              <img src={entry.data.heroImage} alt="" width="800" height="450" loading="lazy" />
+              <span>
+                SERIES{" "}
+                {posts.length > 0 && (
+                  <span>
+                    {posts.length} {posts.length === 1 ? "POST" : "POSTS"}
+                  </span>
+                )}
+              </span>
+            </div>
+            <div class="series-card-copy">
+              <h3>
+                {entry.data.title}
+                <span aria-hidden="true">
+                  <LuArrowUpRight
+                    size="1em"
+                    className="ui-icon"
+                    aria-hidden="true"
+                    focusable="false"
+                  />
+                </span>
+              </h3>
+              <p>{entry.data.description}</p>
+              <div>
+                {entry.data.tags.slice(0, 3).map((tag) => (
+                  <span>{tag}</span>
+                ))}
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+    <section class="home-latest">
+      <div class="section-title">
+        <div>
+          <span class="section-index">FRESH FROM THE WORKSHOP</span>
+          <h2>The latest updates.</h2>
+        </div>
+        <a class="text-link" href="/feed/">
+          The whole feed{" "}
+          <LuArrowUpRight size="1em" className="ui-icon" aria-hidden="true" focusable="false" />
+        </a>
+      </div>
+      {entries.slice(0, 4).map((entry) => (
+        <Entry entry={entry} />
+      ))}
+    </section>
+    <section class="home-me">
+      <div class="home-me-avatar">
+        <Image
+          src={portrait}
+          format="webp"
+          quality={90}
+          densities={[1, 2]}
+          alt="Hannah Harrisonn"
+          width="76"
+          height="76"
+        />
+        <span aria-hidden="true">
+          <LuSparkles size="1em" className="ui-icon" aria-hidden="true" focusable="false" />
+        </span>
+      </div>
+      <div>
+        <p class="eyebrow">THE HUMAN BEHIND THE KEYBOARD</p>
+        <h2>
+          Cloud infrastructure by day.
+          <br />A few side quests in between.
+        </h2>
+        <p>My background, experience, and a few ways to get in touch.</p>
+      </div>
+      <a class="action primary" href="/me/">
+        More about me{" "}
+        <LuArrowUpRight size="1em" className="ui-icon" aria-hidden="true" focusable="false" />
+      </a>
+    </section>
   </div>
-
-  <div>
-    <div class="text-3xl w-full font-bold mb-2">My last projects {"</>"}</div>
-  </div>
-
-  {last_projects.map((project) => (
-    <>
-      <HorizontalCard
-        title={project.data.title}
-        img={project.data.heroImage}
-        desc={project.data.description}
-        url={"/projects/" + createSlug(project.data.title, project.id)}
-        target="_self"
-      />
-    </>
-  ))}
-
-  <a class="btn btn-accent mt-9" href="/projects">
-    All projects
-  </a>
-
-  <div>
-    <div class="text-3xl w-full font-bold mb-5 mt-10">Latest blog posts</div>
-  </div>
-
-  {last_posts.map((post) => (
-    <>
-      <HorizontalCard
-        title={post.data.title}
-        img={post.data.heroImage}
-        desc={post.data.description}
-        url={"/blog/" + createSlug(post.data.title, post.id)}
-        target="_self"
-        badge={post.data.badge}
-      />
-    </>
-  ))}
-
-  <a class="btn btn-accent mt-9" href="/blog">
-    All posts
-  </a>
-</BaseLayout>
+</Layout>
