@@ -1,0 +1,171 @@
+---
+title: 'Introducing Vibra: a vibe-coding-first programming language'
+description: 'Why I am building Vibra, what is in the pre-alpha, and where I want to take it.'
+pubDate: '2026-11-07'
+tags: ["pl-dev", "rust", "languages", "ai"]
+series: vibra
+seriesOrder: 1
+postSlug: introducing-vibra
+language: en
+---
+
+import RepositoryCard from '../../components/RepositoryCard.astro';
+
+I started coding as a kid 10 years ago because I wanted to make a video game. A week in, I had a partial clone of the Chrome Dinosaur game in JavaScript after following a couple YouTube tutorials, and I was absolutely in love with it.
+
+A few years later, I started wondering how programming languages themselves are created and tried making my own, Panther, in 2019. It could only do a few things, like variables, printing, reading input, math, and string manipulation, but it was mine!
+
+I kept coming back to language development, building projects to explore the ideas I found interesting. But I also kept running into the same thought: what problem did I want a new language to solve?
+
+Over the past few years, the way we write software has been changing. Coding agents can now work across files, run tools, respond to feedback, and produce surprisingly large changes. That opens up some exciting possibilities, but it raises a question: how do we make the software they produce easier to understand and trust?
+
+That question led me to Vibra, a programming language I've been working on during my weekends. Today I'm sharing its pre-alpha.
+
+## What does vibe-coding-first look like?
+
+Vibra is designed around the idea that coding agents will write and maintain much of the code, while people guide the work and decide whether to trust the result.
+
+Think about asking an agent to make a change to a program. It needs to understand the existing code, decide where the change belongs, and check whether what it wrote makes sense. You then need to understand what changed and whether you can trust it. Vibra is my attempt to make that process more reliable by designing the language and its tools around it from the start.
+
+Vibra is a programming language with source code and rules, not a way to turn an English request directly into a finished program. It tries to make the resulting software more reliable in a few ways.
+
+First, Vibra makes code describe important decisions explicitly. A function's signature says what it accepts and returns, including possible failures callers need to account for. It also declares effects, such as writing to the filesystem, reading environment variables, or making network requests. The compiler checks these declarations before the program runs, so an agent gets feedback when its changes don't fit the declared boundaries. You can also inspect the signature to understand what a function may do and how it can fail.
+
+Vibra also favors immutable values and a consistent way to express an idea. This reduces the number of moving parts an agent and a reviewer need to reason about. Finally, I'm building structured tools alongside the language so agents can inspect a project and receive precise feedback rather than having to piece everything together from raw text alone.
+
+During my internship, a wise engineer, [Fabiano Honorato](https://www.linkedin.com/in/fhonorato/), told me something that stuck with me: when working with infrastructure, the fewer ways you have to do something, the less likely you are to screw it up. That helped shape my thinking about Vibra. If an agent has fewer unnecessary choices and clearer boundaries, its work can be easier to check and understand.
+
+There is already enough of Vibra to write and run small programs. The pre-alpha is an early look at the direction, far from production-ready. It can catch some mistakes, but it can't tell you whether an agent understood your request or guarantee that the resulting program is correct.
+
+This isn't my first implementation of Vibra. The original version was a working experiment that helped me explore these ideas. As it grew, its features reached different levels of maturity, and the implementation started making design decisions that weren't always captured clearly elsewhere.
+
+I archived that version and started a new implementation around an explicit specification and roadmap. The old code is still in the repository for anyone curious, but it isn't a compatibility target. This time, I want the language, runtime, and tools to agree on a shared contract, with conformance tests providing evidence for the behavior they promise.
+
+## A closer look at Vibra
+
+Although we aren't AI agents, let's see how we could write hello world in Vibra and what the language can tell us along the way.
+
+We can start with an empty `main` function, the entry point of our program:
+
+```lisp
+(defn main () void
+  (do))
+```
+
+Vibra uses S-expressions, a way to write code using forms enclosed in parentheses. Here, `defn` defines a function named `main`, `()` means it takes no arguments, and `void` means it returns no useful value. The empty `(do)` is a body that does nothing.
+
+To print something, we first import the standard input and output module:
+
+```lisp
+(import io @std.io)
+
+(defn main () void
+  (do))
+```
+
+Now let's replace the empty body with a call to `io.stdout.text`:
+
+```lisp
+(import io @std.io)
+
+(defn main () void
+  (io.stdout.text "Hello, world!\n"))
+```
+
+If we check this program, Vibra reports a type mismatch. We said `main` returns `void`, but writing to the console can fail, so `io.stdout.text` returns a `result` instead. Let's make that possibility explicit in `main`'s return type:
+
+```lisp
+(import io @std.io)
+
+(defn main () (result void io.io-error)
+  (io.stdout.text "Hello, world!\n"))
+```
+
+The return type now says that `main` can either succeed without a value or return an input/output error. Vibra's type system checks that the body agrees with that promise. This makes both the intent and a possible consequence visible to callers, including an agent working on the code.
+
+Here, `main` passes the result back to its caller. Vibra also lets us handle the failure or explicitly discard the result. The important part is that a fallible result can't just be left unused as an ordinary statement without the compiler flagging it.
+
+Checking again, the compiler rejects the program: `main` hasn't declared that it can write to standard output. In JSON mode, the diagnostic looks like this:
+
+```json
+{
+  "schemaVersion": 1,
+  "command": "check",
+  "result": "@command.diagnostics",
+  "diagnostics": [
+    {
+      "schemaVersion": 1,
+      "code": "@effect.outside-ceiling",
+      "level": "@error",
+      "message": "this body performs @std.io.stdout, which its written ceiling does not contain",
+      "primarySpan": {
+        "sourceId": "src/app/main.vib",
+        "start": 63,
+        "end": 97,
+        "startPosition": { "line": 4, "column": 3 },
+        "endPosition": { "line": 4, "column": 37 }
+      },
+      "related": [],
+      "notes": ["performs @std.io.stdout via @std.io.stdout.text"],
+      "fixes": []
+    }
+  ],
+  "payload": { "accepted": false }
+}
+```
+
+The compiler identifies the operation and where it appears, and the structured diagnostic gives an agent the same information to act on. We can't leave this operation out of the function's declared effects and still have the program accepted. Let's add it:
+
+```lisp
+(import io @std.io)
+
+(defn main () (result void io.io-error)
+  effects: (io.stdout)
+  (io.stdout.text "Hello, world!\n"))
+```
+
+An effect groups operations that can interact with the world outside pure computation. For example, `io.stdout.text` is an operation of the `io.stdout` effect. To call it, `main` must explicitly include `io.stdout` in its effect declaration. The compiler also checks effects performed through functions that `main` calls, so wrapping the operation in another function doesn't hide it.
+
+Not every function call is an effect operation. Pure computations, such as doing math or transforming data, don't need an effect declaration just because they calculate a result. The type describes a function's possible result, while its effects describe the kinds of external operations it may perform. Together, they make more of its intent and consequences visible.
+
+There's one more boundary outside the source file. Vibra projects have a `project.vibon` file that describes their package and targets. For this example, with our source in `src/app/main.vib`, it can look like this:
+
+```lisp
+(record
+  format: @project.v1
+  package: (record name: "hello" version: "0.1.0")
+  targets: (array
+    (record
+      name: @app
+      kind: @bin
+      root: "src/app"
+      entry: @app.main.main
+      effects: (array @std.io.stdout)))
+  dependencies: (dict))
+```
+
+The binary target also declares `@std.io.stdout`. This is the target's consent to that effect, and the compiler checks the entry function against it. These are static checks performed before execution; the runtime doesn't prompt for permission or enforce a separate effect grant. With the effect declared in both places, the program checks and prints `Hello, world!`.
+
+The effect doesn't say what message is written or guarantee that it is correct, but it does make the output operation visible before the program runs.
+
+## What's next?
+
+The pre-alpha includes a reader and formatter, a type checker, an interpreter, a WebAssembly backend, static effect checking, and host operations for things like console and filesystem access. It also has the beginnings of a standard library and project tooling.
+
+There is still a lot to do before the first alpha, v0.1: reproducible projects and dependencies, more agent-facing tools, and the final WebAssembly build products. The repository tracks this work under its v1 language and tooling roadmap. The goal is a toolchain for creating, checking, testing, running, and building small programs and libraries.
+
+On the tooling side, I want agents to get structured answers about symbols, types, and effects, then preview and apply supported changes transactionally. The fuller agent-facing CLI and MCP tooling will build on the foundations already in place.
+
+Beyond that, I have ideas I'd love to explore, including stronger contracts, property-based testing, static verification, and lightweight processes and supervision inspired by Erlang and Elixir. Distributed systems and interactive applications are interesting possibilities too. These are future directions, not promises for the first alpha, and each needs its own design.
+
+I'd also like to explore a system of capabilities on top of effects. Effects describe the kinds of operations a program may perform; capabilities could make the boundaries more specific, such as which network endpoints it can reach, which environment variables it can read, or which files it can access. That could give people and agents a clearer picture of what a program is allowed to do in the outside world.
+
+Vibra is still very early, but I'm excited to finally share what I've been working on. If you're curious, you can explore the code, read the [specification and roadmap](https://github.com/nahharris/vibra/blob/main/docs/index.md), and follow this series as I continue building it.
+
+<RepositoryCard
+  href="https://github.com/nahharris/vibra"
+  name="nahharris/vibra"
+  description="Explore the language, its implementation, and the roadmap on GitHub."
+/>
+
+I'd love to hear what you think. [Let's talk!](/me/#contact)

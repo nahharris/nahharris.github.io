@@ -41,11 +41,11 @@ export type TranslationSchema = z.infer<typeof translationSchema>;
 export const collections = {
   posts: defineCollection({
     loader: glob({
-      pattern: "**/*.md",
+      pattern: "**/*.{md,mdx}",
       base: "./src/content/posts",
       generateId: ({ entry, data }) => {
         const name = entry.replace(/\\/g, "/");
-        const match = name.match(/^(.+)\.(en|pt|es|sv|fr|it)\.md$/);
+        const match = name.match(/^(.+)\.(en|pt|es|sv|fr|it)\.mdx?$/);
         if (!match || data.language !== suffixLanguages[match[2]])
           throw new Error("Post filename must end in the matching language suffix: " + name);
         if (
@@ -54,7 +54,7 @@ export const collections = {
             data.post.replace(/\.(en|pt|es|sv|fr|it)$/, "") !== match[1])
         )
           throw new Error("Translation must reference an original with the same filename: " + name);
-        return name.slice(0, -3);
+        return name.replace(/\.mdx?$/, "");
       },
     }),
     schema: z.union([blogSchema, translationSchema]),
